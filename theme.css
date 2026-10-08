@@ -1,0 +1,84 @@
+/* ==========================================================================
+   theme.css - colours for the Luma Guardian branch sorter.
+   Edit this file only; index.html does not need to change.
+
+   Every box has these classes:
+     el-fire | el-earth | el-water | el-air   the element
+     shade-0 ... shade-7                      shade slot, spread across the first-level branches
+                                              (the first branch listed in branches.json gets shade-0, the last gets shade-7)
+     b-<name>                                 the first-level branch, e.g. b-lumen, b-umbra
+     root                                     the element box and the Zodiac roots
+     gray                                     a known branch with no profile imported yet (styled in index.html)
+
+   Each colour set uses six variables:
+     --lf  fill        --ls  border        --lt  text      (light mode)
+     --df  fill        --ds  border        --dt  text      (dark mode)
+
+   To change one shade for every element, edit the matching .shade-N rule.
+   To recolour a single branch, add or edit a rule in the PER-BRANCH section at the bottom.
+   ========================================================================== */
+
+/* Tab and page accents */
+:root{--fire:#D85A30;--earth:#1D9E75;--water:#378ADD;--air:#7F77DD}
+
+/* ---- Fire: 8 shade slots, lightest to deepest ---- */
+.root.el-fire{--lf:#FAECE7;--ls:#993C1D;--lt:#712B13;--df:#563A2F;--ds:#EF9F27;--dt:#F4EFE9}
+.el-fire.shade-0{--lf:#FAC775;--ls:#8A6D40;--lt:#1F1A14;--df:#6B5635;--ds:#FAC775;--dt:#F4EFE9}
+.el-fire.shade-1{--lf:#F4B048;--ls:#866128;--lt:#1F1A14;--df:#694D24;--ds:#F4B048;--dt:#F4EFE9}
+.el-fire.shade-2{--lf:#EF9E33;--ls:#83571C;--lt:#1F1A14;--df:#67471C;--ds:#EF9E33;--dt:#F4EFE9}
+.el-fire.shade-3{--lf:#F09B63;--ls:#845536;--lt:#1F1A14;--df:#68452E;--ds:#F09B63;--dt:#F4EFE9}
+.el-fire.shade-4{--lf:#E98766;--ls:#804A38;--lt:#1F1A14;--df:#653E2F;--ds:#E98766;--dt:#F4EFE9}
+.el-fire.shade-5{--lf:#DB633B;--ls:#783620;--lt:#1F1A14;--df:#60301F;--ds:#DB633B;--dt:#F4EFE9}
+.el-fire.shade-6{--lf:#BD4D28;--ls:#682A16;--lt:#FBF7F2;--df:#542818;--ds:#BD4D28;--dt:#F4EFE9}
+.el-fire.shade-7{--lf:#993C1D;--ls:#542110;--lt:#FBF7F2;--df:#472114;--ds:#993C1D;--dt:#F4EFE9}
+
+/* ---- Earth: 8 shade slots, lightest to deepest ---- */
+.root.el-earth{--lf:#E1F5EE;--ls:#0F6E56;--lt:#085041;--df:#173B2D;--ds:#5DCAA5;--dt:#F4EFE9}
+.el-earth.shade-0{--lf:#9FE1CB;--ls:#577C70;--lt:#1F1A14;--df:#496056;--ds:#9FE1CB;--dt:#F4EFE9}
+.el-earth.shade-1{--lf:#79D4B5;--ls:#437564;--lt:#1F1A14;--df:#3A5B4D;--ds:#79D4B5;--dt:#F4EFE9}
+.el-earth.shade-2{--lf:#54C49E;--ls:#2E6C57;--lt:#1F1A14;--df:#2C5545;--ds:#54C49E;--dt:#F4EFE9}
+.el-earth.shade-3{--lf:#2FAB83;--ls:#1A5E48;--lt:#1F1A14;--df:#1E4C3A;--ds:#2FAB83;--dt:#F4EFE9}
+.el-earth.shade-4{--lf:#19906C;--ls:#0E4F3B;--lt:#1F1A14;--df:#164132;--ds:#19906C;--dt:#F4EFE9}
+.el-earth.shade-5{--lf:#11755A;--ls:#094032;--lt:#FBF7F2;--df:#13372B;--ds:#11755A;--dt:#F4EFE9}
+.el-earth.shade-6{--lf:#0C614D;--ls:#07352A;--lt:#FBF7F2;--df:#112F26;--ds:#0C614D;--dt:#F4EFE9}
+.el-earth.shade-7{--lf:#085041;--ls:#042C24;--lt:#FBF7F2;--df:#0F2921;--ds:#085041;--dt:#F4EFE9}
+
+/* ---- Water: 8 shade slots, lightest to deepest ---- */
+.root.el-water{--lf:#E6F1FB;--ls:#185FA5;--lt:#0C447C;--df:#1E354C;--ds:#85B7EB;--dt:#F4EFE9}
+.el-water.shade-0{--lf:#B5D4F4;--ls:#647586;--lt:#1F1A14;--df:#515B65;--ds:#B5D4F4;--dt:#F4EFE9}
+.el-water.shade-1{--lf:#9AC3EF;--ls:#556B83;--lt:#1F1A14;--df:#475564;--ds:#9AC3EF;--dt:#F4EFE9}
+.el-water.shade-2{--lf:#7AB1E9;--ls:#436180;--lt:#1F1A14;--df:#3B4E61;--ds:#7AB1E9;--dt:#F4EFE9}
+.el-water.shade-3{--lf:#4D97E1;--ls:#2A537C;--lt:#1F1A14;--df:#2A445E;--ds:#4D97E1;--dt:#F4EFE9}
+.el-water.shade-4{--lf:#2E7ECD;--ls:#194571;--lt:#FBF7F2;--df:#1E3A57;--ds:#2E7ECD;--dt:#F4EFE9}
+.el-water.shade-5{--lf:#1C65AD;--ls:#0F385F;--lt:#FBF7F2;--df:#17314A;--ds:#1C65AD;--dt:#F4EFE9}
+.el-water.shade-6{--lf:#135393;--ls:#0A2E51;--lt:#FBF7F2;--df:#142A41;--ds:#135393;--dt:#F4EFE9}
+.el-water.shade-7{--lf:#0C447C;--ls:#072544;--lt:#FBF7F2;--df:#112438;--ds:#0C447C;--dt:#F4EFE9}
+
+/* ---- Air: 8 shade slots, lightest to deepest ---- */
+.root.el-air{--lf:#EEEDFE;--ls:#534AB7;--lt:#3C3489;--df:#34304C;--ds:#AFA9EC;--dt:#F4EFE9}
+.el-air.shade-0{--lf:#CECBF6;--ls:#717087;--lt:#1F1A14;--df:#5B5866;--ds:#CECBF6;--dt:#F4EFE9}
+.el-air.shade-1{--lf:#BCB8F0;--ls:#676584;--lt:#1F1A14;--df:#545064;--ds:#BCB8F0;--dt:#F4EFE9}
+.el-air.shade-2{--lf:#A8A2EA;--ls:#5C5981;--lt:#1F1A14;--df:#4C4862;--ds:#A8A2EA;--dt:#F4EFE9}
+.el-air.shade-3{--lf:#8D85E1;--ls:#4E497C;--lt:#1F1A14;--df:#423D5E;--ds:#8D85E1;--dt:#F4EFE9}
+.el-air.shade-4{--lf:#726AD2;--ls:#3F3A74;--lt:#1F1A14;--df:#383358;--ds:#726AD2;--dt:#F4EFE9}
+.el-air.shade-5{--lf:#5950BC;--ls:#312C67;--lt:#FBF7F2;--df:#2E2950;--ds:#5950BC;--dt:#F4EFE9}
+.el-air.shade-6{--lf:#4941A3;--ls:#28245A;--lt:#FBF7F2;--df:#282347;--ds:#4941A3;--dt:#F4EFE9}
+.el-air.shade-7{--lf:#3C3489;--ls:#211D4B;--lt:#FBF7F2;--df:#231E3D;--ds:#3C3489;--dt:#F4EFE9}
+
+/* ==========================================================================
+   PER-BRANCH colours (these win over the shade slots above).
+   Uncomment a rule and change the hex values. Use .node.b-<name> so it beats the slots.
+   First-level branches currently in branches.json:
+     Fire: b-lumen, b-blaze, b-vitalis, b-umbra, b-firewall
+     Earth: b-life, b-mineral, b-soil
+     Water: b-hydro, b-gleam
+     Air: b-resonance, b-aero, b-aether
+   ========================================================================== */
+
+/* Example: make Lumen a warmer, lighter gold
+.node.b-lumen{--lf:#FFE2A8;--ls:#B9770E;--lt:#3B2400;--df:#6B4A10;--ds:#FFE2A8;--dt:#F4EFE9}
+*/
+
+/* Example: make the whole Umbra family a deeper orange
+.node.b-umbra{--lf:#E8791A;--ls:#7A3B05;--lt:#FFF4E6;--df:#6B3305;--ds:#E8791A;--dt:#F4EFE9}
+*/

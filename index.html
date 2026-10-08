@@ -50,7 +50,13 @@ header.top p{margin:0;color:var(--muted);max-width:52ch}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:10px 12px;font-size:13px;line-height:1.5}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.status{font-size:13px;color:var(--muted);min-height:20px}
+.status{font-size:13px;color:var(--muted);min-height:20px;margin-top:8px}
+.files{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}
+.files li{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:5px 6px 5px 10px;font-size:13px}
+.files li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.files li small{color:var(--muted);margin-left:8px}
+.files button{border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1;padding:2px 8px;color:var(--muted);border-radius:6px}
+.files button:hover{color:var(--ink);background:var(--line)}
 .status.err{color:#C0392B}
 details.adv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
 details.adv summary{cursor:pointer;font-weight:600;font-size:14px}
@@ -65,21 +71,23 @@ details.adv p{margin:8px 0}
 .legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;color:var(--muted);margin-bottom:12px}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .sw{width:16px;height:11px;border-radius:3px;border:1px solid}
+.sw.has{background:var(--lf);border-color:var(--ls)}
+.sw.none{background:var(--lf-gray);border-color:var(--ls-gray);border-style:dashed}
 .diagram{overflow-x:auto;padding:4px 2px 8px}
 .diagram svg{display:block}
 .node{cursor:pointer}
-.node rect{fill:var(--lf);stroke:var(--ls);stroke-width:1}
-.node text{fill:var(--lt);font-family:"Manrope",system-ui,sans-serif;font-size:13px;font-weight:600;pointer-events:none}
+.node rect{fill:var(--lf,var(--surface2));stroke:var(--ls,var(--line));stroke-width:1}
+.node text{fill:var(--lt,var(--ink));font-family:"Manrope",system-ui,sans-serif;font-size:13px;font-weight:600;pointer-events:none}
 .node.gray rect{fill:var(--lf-gray);stroke:var(--ls-gray);stroke-dasharray:4 3}
 .node.gray text{fill:var(--lt-gray)}
 .node.sel rect{stroke-width:2.5}
 .node:hover rect{stroke-width:2}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .node:not(.gray) rect{fill:var(--df);stroke:var(--ds)}
-  :root:not([data-theme="light"]) .node:not(.gray) text{fill:var(--dt)}
+  :root:not([data-theme="light"]) .node:not(.gray) rect{fill:var(--df,var(--surface2));stroke:var(--ds,var(--line))}
+  :root:not([data-theme="light"]) .node:not(.gray) text{fill:var(--dt,var(--ink))}
 }
-:root[data-theme="dark"] .node:not(.gray) rect{fill:var(--df);stroke:var(--ds)}
-:root[data-theme="dark"] .node:not(.gray) text{fill:var(--dt)}
+:root[data-theme="dark"] .node:not(.gray) rect{fill:var(--df,var(--surface2));stroke:var(--ds,var(--line))}
+:root[data-theme="dark"] .node:not(.gray) text{fill:var(--dt,var(--ink))}
 .link{fill:none;stroke:var(--line);stroke-width:1.5}
 :root[data-theme="light"] .link{stroke:#BDB9D3}
 .detail{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface);min-height:64px;font-size:14px}
@@ -100,6 +108,7 @@ details.adv p{margin:8px 0}
 .note{color:var(--muted);font-size:14px;margin:0 0 12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="wrap">
@@ -114,17 +123,21 @@ details.adv p{margin:8px 0}
       <ol class="steps">
         <li>In Google Docs: File, then Download.</li>
         <li>Choose Microsoft Word (.docx), Markdown (.md) or Plain text (.txt).</li>
-        <li>Upload that file here.</li>
+        <li>Upload one file, or select several at once. Use Add more files to keep what is already loaded.</li>
       </ol>
       <div class="row">
-        <label class="btn primary" for="file">Choose file</label>
-        <input id="file" type="file" accept=".docx,.md,.markdown,.txt,.html,.htm">
-        <span class="status" id="status" role="status" aria-live="polite"></span>
+        <label class="btn primary" for="file">Choose files</label>
+        <input id="file" type="file" multiple accept=".docx,.md,.markdown,.txt,.html,.htm">
+        <label class="btn" for="fileAdd">Add more files</label>
+        <input id="fileAdd" type="file" multiple accept=".docx,.md,.markdown,.txt,.html,.htm">
       </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <ul class="files" id="files" aria-label="Imported files"></ul>
       <details class="adv" id="advanced">
-        <summary>Branch overrides</summary>
-        <p class="note">One rule per line, written as <code>from-path =&gt; to-path</code>. Use it when your doc writes the same branch two ways. Lines starting with # are ignored.</p>
-        <textarea id="overrides" rows="5" spellcheck="false" aria-label="Branch overrides"></textarea>
+        <summary>Branch overrides and options</summary>
+        <p class="note" id="cfgnote"></p>
+        <p class="note">Extra overrides for this browser only, one per line: <code>from-path =&gt; to-path</code>. Rules in branches.json are always applied too. Lines starting with # are ignored.</p>
+        <textarea id="overrides" rows="5" spellcheck="false" aria-label="Extra branch overrides"></textarea>
         <label class="chk"><input type="checkbox" id="infer"> <span>Also show disciples that are named in a Disciple line but have no profile yet (gray boxes).</span></label>
         <div class="row" style="margin-top:10px"><button class="btn" id="resort" type="button">Re-sort</button></div>
       </details>
@@ -145,18 +158,7 @@ details.adv p{margin:8px 0}
 // ==CORE==
 const ELEMENTS=['Fire','Earth','Water','Air'];
 const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','star index':'star','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples'};
-const DEFAULT_OVERRIDES=[
-'# Verdant is written as Earth-Life-Verdant on her own profile but as Earth-Soil-Verdant on the Wildflowers profiles.',
-'Earth-Soil-Verdant => Earth-Life-Verdant',
-'# Halo is written under Vitalis, which is a Fire branch.',
-'Earth-Life-Vitalis-Halo => Earth-Life-Halo'
-].join('\n');
-const PALETTE={
-  Fire:{stops:['#FAC775','#EF9F27','#F0997B','#D85A30','#993C1D'],rf:'#FAECE7',rs:'#993C1D',rt:'#712B13'},
-  Earth:{stops:['#9FE1CB','#5DCAA5','#1D9E75','#0F6E56','#085041'],rf:'#E1F5EE',rs:'#0F6E56',rt:'#085041'},
-  Water:{stops:['#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C'],rf:'#E6F1FB',rs:'#185FA5',rt:'#0C447C'},
-  Air:{stops:['#CECBF6','#AFA9EC','#7F77DD','#534AB7','#3C3489'],rf:'#EEEDFE',rs:'#534AB7',rt:'#3C3489'}
-};
+const FALLBACK_CONFIG={overrides:['Earth-Soil-Verdant => Earth-Life-Verdant','Earth-Life-Vitalis-Halo => Earth-Life-Halo'],zodiacRoots:{},branches:[]};
 function norm(s){return s.replace(/[\u2013\u2014\u2212\u2010\u2011]/g,'-').replace(/\u00a0/g,' ').replace(/\\(.)/g,'$1').replace(/\*/g,'').replace(/~~/g,'').trim();}
 function capEl(s){if(!s)return null;return ELEMENTS.find(x=>x.toLowerCase()===s.trim().toLowerCase())||null;}
 function segs(s){return s.split('-').map(x=>x.trim()).filter(Boolean);}
@@ -209,6 +211,17 @@ function parseEntries(text){
   }
   return out;
 }
+function parseAll(files){
+  const out=[],seen=new Set();
+  for(const f of files){
+    for(const e of parseEntries(f.text)){
+      const k=e.name.toLowerCase()+'|'+e.path.join('-').toLowerCase();
+      if(seen.has(k)&&e.name!=='(unnamed)')continue;
+      seen.add(k);e.source=f.name;out.push(e);
+    }
+  }
+  return out;
+}
 function parseOverrides(text){
   const rules=[];
   for(const line of (text||'').split(/\r?\n/)){
@@ -234,7 +247,7 @@ function applyOverrides(entries,rules){
   }
   return entries;
 }
-function mk(label,path){return{label,path:path||[label],kids:[],map:new Map(),g:[],inferred:false,z:[]};}
+function mk(label,path){return{label,path:path||[label],kids:[],map:new Map(),g:[],inferred:false,z:[],zg:[]};}
 function child(n,label,inferred){
   const k=label.toLowerCase();let c=n.map.get(k);
   if(!c){c=mk(label,n.path.concat(label));c.inferred=!!inferred;n.map.set(k,c);n.kids.push(c);}
@@ -243,6 +256,13 @@ function child(n,label,inferred){
 function buildTrees(entries,opts){
   opts=opts||{};
   const roots={};ELEMENTS.forEach(e=>roots[e]=mk(e));
+  const rank=new Map();
+  (opts.branches||[]).forEach(pth=>{
+    const sg=segs(norm(String(pth)));const el=capEl(sg[0]);
+    if(!el||sg.length<2)return;
+    let n=roots[el];for(const x of sg.slice(1))n=child(n,x);
+    const k=el+'|'+sg[1].toLowerCase();if(!rank.has(k))rank.set(k,rank.size);
+  });
   const noBranch=[],names=new Set();
   entries.forEach(e=>names.add(e.name.toLowerCase()));
   for(const e of entries){
@@ -253,6 +273,10 @@ function buildTrees(entries,opts){
       n.g.push(e);e.node=n;
     }else noBranch.push(e);
   }
+  ELEMENTS.forEach(el=>{
+    const have=new Set(roots[el].z.map(z=>z.name.toLowerCase()));
+    roots[el].zg=((opts.zodiac&&opts.zodiac[el])||[]).filter(n=>!have.has(String(n).toLowerCase()));
+  });
   if(opts.infer){
     for(const e of entries){
       if(e.kind!=='branch'||!e.node)continue;
@@ -264,7 +288,11 @@ function buildTrees(entries,opts){
   }
   const size=n=>{n.size=1+n.kids.reduce((s,k)=>s+size(k),0);return n.size;};
   const sortk=n=>{n.kids.sort((a,b)=>b.size-a.size);n.kids.forEach(sortk);};
-  ELEMENTS.forEach(e=>{size(roots[e]);sortk(roots[e]);});
+  ELEMENTS.forEach(e=>{
+    size(roots[e]);sortk(roots[e]);
+    const r=x=>rank.has(e+'|'+x.label.toLowerCase())?rank.get(e+'|'+x.label.toLowerCase()):1e6;
+    roots[e].kids.sort((a,b)=>r(a)-r(b)||b.size-a.size);
+  });
   return{roots,noBranch};
 }
 function collectWarnings(entries,roots,noBranch){
@@ -280,30 +308,18 @@ function collectWarnings(entries,roots,noBranch){
     if(e.kind==='branch'&&e.path[e.path.length-1].toLowerCase()!==e.name.toLowerCase())w.push(e.name+' is filed under '+e.path.join('-')+', but the last branch name is "'+e.path[e.path.length-1]+'".');
     if(e.kind!=='none'&&e.origEl&&e.element&&e.origEl!==e.element)w.push(e.name+': Original Element says '+e.origEl+', but the Branch Theme starts with '+e.element+'.');
   }
+  const byName=new Map();
+  for(const e of entries){if(e.name==='(unnamed)'||e.kind==='none')continue;const k=e.name.toLowerCase();if(!byName.has(k))byName.set(k,[]);byName.get(k).push(e);}
+  for(const [k,list] of byName){const ps=[...new Set(list.map(e=>e.path.join('-')))];if(ps.length>1)w.push(list[0].name+' has different branches in different places: '+list.map(e=>e.path.join('-')+(e.source?' ('+e.source+')':'')).join('  |  ')+'. Both are drawn.');}
   for(const e of noBranch)if(/^Unrecognised/.test(e.reason))w.push(e.name+': '+e.reason+'.');
   return w;
 }
-function mix(a,b,t){
-  const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
-  const A=p(a),B=p(b);
-  return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');
-}
-function lum(h){const [r,g,b]=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .2126*r+.7152*g+.0722*b;}
-function sample(stops,i,n){
-  if(n<=1)return stops[0];
-  const pos=(i/(n-1))*(stops.length-1),lo=Math.floor(pos),hi=Math.min(stops.length-1,lo+1);
-  return mix(stops[lo],stops[hi],pos-lo);
-}
-function shadeVars(el,i,n){
-  const lf=sample(PALETTE[el].stops,i,n);
-  const ls=mix(lf,'#000000',.45);
-  const lt=lum(lf)>0.45?'#1F1A14':'#FBF7F2';
-  return '--lf:'+lf+';--ls:'+ls+';--lt:'+lt+';--df:'+mix(lf,'#14110E',.62)+';--ds:'+lf+';--dt:#F4EFE9';
-}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const slug=x=>String(x).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 function renderTree(root,el){
-  const BW=116,BH=28,GAP=18,PITCH=BW+GAP,ROWH=36,PAD=20;
-  const off=root.z.length?1:0;
+  const BW=116,BH=28,GAP=18,PITCH=BW+GAP,ROWH=36,PAD=20,MAXSLOT=7;
+  const zs=root.z.map(e=>({name:e.name,g:[e]})).concat((root.zg||[]).map(n=>({name:n,none:true})));
+  const off=zs.length?1:0,elc='el-'+el.toLowerCase();
   let row=0,maxD=0;
   const all=[];
   (function walk(n,d,sh){
@@ -311,31 +327,29 @@ function renderTree(root,el){
     if(!n.kids.length){n.row=row++;}
     else{n.kids.forEach((k,i)=>walk(k,d+1,d===0?i:sh));n.row=(n.kids[0].row+n.kids[n.kids.length-1].row)/2;}
   })(root,0,-1);
-  root.z.forEach((e,i)=>{e.row=root.row+i-(root.z.length-1)/2;});
-  let minRow=Math.min(...all.map(n=>n.row),...root.z.map(e=>e.row));
-  let maxRow=Math.max(...all.map(n=>n.row),...root.z.map(e=>e.row));
+  zs.forEach((e,i)=>{e.row=root.row+i-(zs.length-1)/2;});
+  const minRow=Math.min(...all.map(n=>n.row),...zs.map(e=>e.row));
+  const maxRow=Math.max(...all.map(n=>n.row),...zs.map(e=>e.row));
   const X=d=>PAD+(d+off)*PITCH,Y=r=>PAD+(r-minRow)*ROWH;
   const W=PAD*2+(maxD+1+off)*PITCH-GAP,H=PAD*2+(maxRow-minRow)*ROWH+BH;
-  const nshade=root.kids.length;
-  const details={};
+  const details={},nb=root.kids.length;
   let links='',nodes='',id=0;
-  const rootVars='--lf:'+PALETTE[el].rf+';--ls:'+PALETTE[el].rs+';--lt:'+PALETTE[el].rt+';--df:'+mix(PALETTE[el].stops[2],'#14110E',.7)+';--ds:'+PALETTE[el].stops[1]+';--dt:#F4EFE9';
-  function box(x,y,label,cls,style,key,title){
+  function box(x,y,label,cls,key,title){
     const long=label.length>13?' textLength="'+(BW-16)+'" lengthAdjust="spacingAndGlyphs"':'';
-    return '<g class="node '+cls+'" data-k="'+key+'" style="'+style+'" tabindex="0" role="button" aria-label="'+esc(title)+'"><title>'+esc(title)+'</title><rect x="'+x+'" y="'+y+'" width="'+BW+'" height="'+BH+'" rx="6"/><text x="'+(x+BW/2)+'" y="'+(y+BH/2)+'" text-anchor="middle" dominant-baseline="central"'+long+'>'+esc(label)+'</text></g>';
+    return '<g class="node '+cls+'" data-k="'+key+'" tabindex="0" role="button" aria-label="'+esc(title)+'"><title>'+esc(title)+'</title><rect x="'+x+'" y="'+y+'" width="'+BW+'" height="'+BH+'" rx="6"/><text x="'+(x+BW/2)+'" y="'+(y+BH/2)+'" text-anchor="middle" dominant-baseline="central"'+long+'>'+esc(label)+'</text></g>';
   }
   function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
   all.forEach(n=>{
     const key=el+':'+(id++);
     const x=X(n.d),y=Y(n.row);
     if(n.d===0){
-      details[key]={title:el,sub:'Element root',rows:[['Branches',String(root.kids.length)],['Zodiac roots',root.z.map(z=>z.name).join(', ')||'none']]};
-      nodes+=box(x,y,el,'',rootVars+';stroke-width:2',key,el);
+      details[key]={title:el,sub:'Element root',rows:[['Branches',String(root.kids.length)],['Zodiac roots',zs.map(z=>z.name).join(', ')||'none']]};
+      nodes+=box(x,y,el,'root '+elc,key,el);
     }else{
-      const has=n.g.length>0;
-      if(has){const g=n.g[0];details[key]={title:n.g.map(q=>q.name).join(' / '),sub:n.path.join(' > '),g:n.g};}
+      const has=n.g.length>0,top=root.kids[n.sh];
+      if(has)details[key]={title:n.g.map(q=>q.name).join(' / '),sub:n.path.join(' > '),g:n.g};
       else details[key]={title:n.label,sub:n.path.join(' > '),none:true,inferred:n.inferred,by:descGuardians(n)};
-      nodes+=box(x,y,n.label,has?'':'gray',has?shadeVars(el,n.sh,nshade):'',key,n.label+(has?'':' (no profile yet)'));
+      nodes+=box(x,y,n.label,elc+' shade-'+(nb<2?0:Math.round(n.sh*MAXSLOT/(nb-1)))+' b-'+slug(top.label)+(has?'':' gray'),key,n.label+(has?'':' (no profile yet)'));
     }
     if(n.kids.length){
       const sx=x+BW,mid=sx+GAP/2,sy=Y(n.row)+BH/2;
@@ -343,14 +357,14 @@ function renderTree(root,el){
       links+='<path class="link" d="M'+sx+' '+sy+' H'+mid+' M'+mid+' '+Math.min(...ys,sy)+' V'+Math.max(...ys,sy)+n.kids.map((k,i)=>' M'+mid+' '+ys[i]+' H'+X(k.d)).join('')+'"/>';
     }
   });
-  if(root.z.length){
+  if(zs.length){
     const rx=X(0),sx=PAD+BW,mid=sx+GAP/2,ry=Y(root.row)+BH/2;
-    const ys=root.z.map(z=>Y(z.row)+BH/2);
+    const ys=zs.map(z=>Y(z.row)+BH/2);
     links+='<path class="link" d="M'+rx+' '+ry+' H'+mid+' M'+mid+' '+Math.min(...ys,ry)+' V'+Math.max(...ys,ry)+ys.map(v=>' M'+sx+' '+v+' H'+mid).join('')+'"/>';
-    root.z.forEach(z=>{
+    zs.forEach(z=>{
       const key=el+':'+(id++);
-      details[key]={title:z.name,sub:'Zodiac root of '+el,g:[z]};
-      nodes+=box(PAD,Y(z.row),z.name,'',rootVars,key,z.name+' (Zodiac root)');
+      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g};
+      nodes+=box(PAD,Y(z.row),z.name,'root '+elc+(z.none?' gray':''),key,z.name+' (Zodiac root)'+(z.none?' (no profile yet)':''));
     });
   }
   const svg='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="'+el+' branch tree">'+links+nodes+'</svg>';
@@ -359,20 +373,40 @@ function renderTree(root,el){
 // ==UI==
 const $=id=>document.getElementById(id);
 const COLORS={Fire:'var(--fire)',Earth:'var(--earth)',Water:'var(--water)',Air:'var(--air)','No branch yet':'var(--none)','Check':'var(--warn-ink)'};
-let S={entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};
+let CFG=FALLBACK_CONFIG;
+let S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'');}
-function sortText(text,silent){
-  const entries=parseEntries(text);
-  if(!entries.length){setStatus('No Guardian profiles found. Each profile needs a "Guardian Name:" line.',true);return false;}
-  applyOverrides(entries,parseOverrides($('overrides').value));
-  const t=buildTrees(entries,{infer:$('infer').checked});
+function hasCfgBranches(){return !!(CFG.branches&&CFG.branches.length)||!!Object.values(CFG.zodiacRoots||{}).some(a=>a&&a.length);}
+function sortAll(silent){
+  const entries=parseAll(S.files);
+  if(!entries.length&&!hasCfgBranches()){setStatus(S.files.length?'No Guardian profiles found. Each profile needs a "Guardian Name:" line.':'',!!S.files.length);S.roots=null;renderTabs();renderPanel();return false;}
+  const rules=parseOverrides((CFG.overrides||[]).join('\n')+'\n'+$('overrides').value);
+  applyOverrides(entries,rules);
+  const t=buildTrees(entries,{infer:$('infer').checked,branches:CFG.branches,zodiac:CFG.zodiacRoots});
   S.entries=entries;S.roots=t.roots;S.noBranch=t.noBranch;S.warnings=collectWarnings(entries,t.roots,t.noBranch);
-  if(!silent)setStatus('Sorted '+entries.length+' Guardians.');
-  lsSet('luma.doc.v1',text);lsSet('luma.over.v1',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');
+  if(!silent)setStatus(entries.length?'Sorted '+entries.length+' Guardians from '+S.files.length+' file'+(S.files.length===1?'':'s')+'.':'Showing the branches in branches.json. Import your doc to light them up.');
+  lsSet('luma.files.v1',JSON.stringify(S.files));lsSet('luma.over.v2',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');
   renderTabs();renderPanel();return true;
 }
+async function loadConfig(){
+  const note=$('cfgnote');
+  try{
+    const r=await fetch('branches.json',{cache:'no-cache'});
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();
+    CFG={overrides:Array.isArray(j.overrides)?j.overrides:[],zodiacRoots:j.zodiacRoots||{},branches:Array.isArray(j.branches)?j.branches:[]};
+    note.textContent='Loaded branches.json: '+CFG.branches.length+' branches, '+CFG.overrides.length+' override rules.';
+  }catch(e){
+    CFG=FALLBACK_CONFIG;
+    note.textContent='branches.json was not found, so built-in defaults are used. Open the page from your GitHub site (or a local web server) to load it.';
+  }
+}
+function renderFiles(){
+  $('files').innerHTML=S.files.map((f,i)=>'<li><span>'+esc(f.name)+'<small>'+(f.count===undefined?'':f.count+' profiles')+'</small></span><button type="button" data-rm="'+i+'" aria-label="Remove '+esc(f.name)+'">&times;</button></li>').join('');
+}
+function countFor(f){return parseEntries(f.text).length;}
 function renderTabs(){
   const names=[...ELEMENTS,'No branch yet','Check'];
   $('tabs').innerHTML=names.map(n=>{
@@ -388,11 +422,11 @@ function renderTabs(){
 function detailHtml(d){
   if(!d)return '<span class="hint">Select a box to see the profile.</span>';
   if(d.none){
-    return '<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div><p style="margin:8px 0 0">'+(d.inferred?'Named as a disciple, but no profile in the doc yet.':'This branch is part of the Branch Theme of '+(d.by.length?esc(d.by.join(', ')):'another Guardian')+', but no Guardian has this branch as their own yet.')+'</p>';
+    return '<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div><p style="margin:8px 0 0">'+(d.inferred?'Named as a disciple, but no profile in the doc yet.':d.zodiac?'Listed in branches.json, but no profile has been imported for it yet.':'This branch is known, but no imported profile belongs to it yet.'+(d.by.length?' It is part of the Branch Theme of '+esc(d.by.join(', '))+'.':''))+'</p>';
   }
   let h='<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div>';
   (d.g||[]).forEach(g=>{
-    const rows=[['Rank',g.rank],['Star Index',g.star],['Mentor',g.mentor],['Primary Role',g.role],['Team',g.team],['Guild',g.guild],['Zodiac',g.zodiac]].filter(r=>r[1]);
+    const rows=[['Rank',g.rank],['Star Index',g.star],['Mentor',g.mentor],['Primary Role',g.role],['Team',g.team],['Guild',g.guild],['Zodiac',g.zodiac],['File',S.files.length>1?g.source:'']].filter(r=>r[1]);
     h+='<dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd>').join('')+'</dl>';
   });
   return h;
@@ -403,9 +437,10 @@ function renderPanel(){
   const t=S.tab;
   if(ELEMENTS.includes(t)){
     const root=S.roots[t];
-    if(!root.kids.length&&!root.z.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
+    if(!root.kids.length&&!root.z.length&&!root.zg.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
     const r=renderTree(root,t);S.details=r.details;
-    p.innerHTML='<div class="legend"><span><i class="sw" style="background:'+PALETTE[t].stops[1]+';border-color:'+PALETTE[t].stops[3]+'"></i>Has a profile (shade = branch family)</span><span><i class="sw" style="background:var(--lf-gray);border-color:var(--ls-gray);border-style:dashed"></i>Named in the doc, no profile yet</span>'+(root.z.length?'<span>Zodiac roots sit left of '+t+'</span>':'')+'</div><div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
+    const ec='el-'+t.toLowerCase();
+    p.innerHTML='<div class="legend"><span><i class="sw has '+ec+' shade-2"></i>Has a profile (shade = branch family)</span><span><i class="sw none"></i>Known branch, no profile imported yet</span>'+((root.z.length||root.zg.length)?'<span>Zodiac roots sit left of '+t+'</span>':'')+'</div><div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
   }else if(t==='No branch yet'){
     const groups=[...ELEMENTS,'No element set'].map(g=>({g,items:S.noBranch.filter(e=>(e.element||'No element set')===g)})).filter(x=>x.items.length);
     if(!groups.length){p.innerHTML='<div class="card empty">Every Guardian has a branch.</div>';return;}
@@ -427,16 +462,32 @@ async function readFile(f){
   const t=await f.text();
   return /\.html?$/.test(n)?htmlToText(t):t;
 }
-$('file').addEventListener('change',async e=>{
-  const f=e.target.files[0];if(!f)return;
-  setStatus('Reading '+f.name+'...');
-  try{const text=await readFile(f);$('paste').value=text.length>400000?'':text;sortText(text);}
-  catch(err){setStatus(err.message||'Could not read that file.',true);}
-  e.target.value='';
+async function addFiles(list,replace){
+  const fs=[...list];if(!fs.length)return;
+  setStatus('Reading '+fs.length+' file'+(fs.length===1?'':'s')+'...');
+  const got=[],failed=[];
+  for(const f of fs){
+    try{const text=await readFile(f);const o={name:f.name,text};o.count=countFor(o);got.push(o);}
+    catch(err){failed.push(f.name+': '+(err.message||'could not be read'));}
+  }
+  const base=replace?[]:S.files.filter(x=>!got.some(g=>g.name===x.name));
+  S.files=base.concat(got);
+  renderFiles();
+  if(!sortAll(false)&&failed.length)setStatus(failed.join(' | '),true);
+  else if(failed.length)setStatus('Sorted, but some files failed: '+failed.join(' | '),true);
+}
+$('file').addEventListener('change',e=>{addFiles(e.target.files,true);e.target.value='';});
+$('fileAdd').addEventListener('change',e=>{addFiles(e.target.files,false);e.target.value='';});
+$('files').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;S.files.splice(+b.dataset.rm,1);renderFiles();sortAll(true);setStatus(S.files.length?'Removed. '+S.files.length+' file'+(S.files.length===1?'':'s')+' left.':'');});
+$('sort').addEventListener('click',()=>{
+  const t=$('paste').value;
+  if(!t.trim()){setStatus('Paste the doc text first.',true);return;}
+  const o={name:'Pasted text',text:t};o.count=countFor(o);
+  S.files=S.files.filter(x=>x.name!=='Pasted text').concat(o);
+  renderFiles();sortAll(false);
 });
-$('sort').addEventListener('click',()=>{const t=$('paste').value;if(!t.trim()){setStatus('Paste the doc text first.',true);return;}sortText(t);});
-$('clear').addEventListener('click',()=>{$('paste').value='';S={entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};lsSet('luma.doc.v1','');setStatus('');renderTabs();renderPanel();});
-$('resort').addEventListener('click',()=>{const t=lsGet('luma.doc.v1')||$('paste').value;if(!t){setStatus('Import the doc first.',true);return;}sortText(t);});
+$('clear').addEventListener('click',()=>{$('paste').value='';S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:S.tab,details:{}};lsSet('luma.files.v1','');lsSet('luma.doc.v1','');renderFiles();if(hasCfgBranches())sortAll(false);else{setStatus('');renderTabs();renderPanel();}});
+$('resort').addEventListener('click',()=>{if(!S.files.length){setStatus('Import the doc first.',true);return;}sortAll(false);});
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;renderTabs();renderPanel();});
 function pick(g){
   if(!g)return;
@@ -446,13 +497,19 @@ function pick(g){
 }
 $('panel').addEventListener('click',e=>pick(e.target.closest('.node')));
 $('panel').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest&&e.target.closest('.node');if(g){e.preventDefault();pick(g);}}});
-(function init(){
-  const ov=lsGet('luma.over.v1');
-  $('overrides').value=ov===null||ov===''?DEFAULT_OVERRIDES:ov;
+(async function init(){
+  $('overrides').value=lsGet('luma.over.v2')||'';
   $('infer').checked=lsGet('luma.infer.v1')==='1';
   renderTabs();renderPanel();
-  const saved=lsGet('luma.doc.v1');
-  if(saved){$('paste').value=saved.length>400000?'':saved;sortText(saved,true);setStatus('Restored your last import. Upload again to refresh.');}
+  await loadConfig();
+  let saved=null;
+  try{saved=JSON.parse(lsGet('luma.files.v1')||'null');}catch(e){}
+  if(!saved||!saved.length){const old=lsGet('luma.doc.v1');if(old)saved=[{name:'Previous import',text:old}];}
+  if(saved&&saved.length){
+    S.files=saved.map(f=>({name:f.name,text:f.text,count:countFor(f)}));
+    renderFiles();
+    if(sortAll(true))setStatus('Restored your last import. Choose files again to refresh.');
+  }else if(hasCfgBranches()){sortAll(false);}
 })();
 </script>
 </body>
