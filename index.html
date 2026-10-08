@@ -88,6 +88,9 @@ details.adv p{margin:8px 0}
 }
 :root[data-theme="dark"] .node:not(.gray) rect{fill:var(--df,var(--surface2));stroke:var(--ds,var(--line))}
 :root[data-theme="dark"] .node:not(.gray) text{fill:var(--dt,var(--ink))}
+.alias{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 3}
+.aliaslabel{fill:var(--muted);font-family:"Manrope",system-ui,sans-serif;font-size:11px}
+.sw.alias-sw{width:0;height:14px;border:0;border-left:2px dashed var(--muted);border-radius:0;margin:0 6px}
 .link{fill:none;stroke:var(--line);stroke-width:1.5}
 :root[data-theme="light"] .link{stroke:#BDB9D3}
 .detail{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface);min-height:64px;font-size:14px}
@@ -133,11 +136,13 @@ details.adv p{margin:8px 0}
       </div>
       <div class="status" id="status" role="status" aria-live="polite"></div>
       <ul class="files" id="files" aria-label="Imported files"></ul>
+      <div class="row" style="margin-top:12px"><button class="btn" id="export" type="button">Download branches.json</button></div>
       <details class="adv" id="advanced">
         <summary>Branch overrides and options</summary>
         <p class="note" id="cfgnote"></p>
         <p class="note">Extra overrides for this browser only, one per line: <code>from-path =&gt; to-path</code>. Rules in branches.json are always applied too. Lines starting with # are ignored.</p>
         <textarea id="overrides" rows="5" spellcheck="false" aria-label="Extra branch overrides"></textarea>
+        <label class="chk"><input type="checkbox" id="jsononly"> <span>Show branches.json only (ignore imported files).</span></label>
         <label class="chk"><input type="checkbox" id="infer"> <span>Also show disciples that are named in a Disciple line but have no profile yet (gray boxes).</span></label>
         <div class="row" style="margin-top:10px"><button class="btn" id="resort" type="button">Re-sort</button></div>
       </details>
@@ -157,8 +162,8 @@ details.adv p{margin:8px 0}
 <script>
 // ==CORE==
 const ELEMENTS=['Fire','Earth','Water','Air'];
-const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','star index':'star','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples'};
-const FALLBACK_CONFIG={overrides:['Earth-Soil-Verdant => Earth-Life-Verdant','Earth-Life-Vitalis-Halo => Earth-Life-Halo'],zodiacRoots:{},branches:[]};
+const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples'};
+const FALLBACK_CONFIG={guardians:[],overrides:['Earth-Soil-Verdant => Earth-Life-Verdant','Earth-Life-Vitalis-Halo => Earth-Life-Halo'],zodiacRoots:{},branches:[]};
 function norm(s){return s.replace(/[\u2013\u2014\u2212\u2010\u2011]/g,'-').replace(/\u00a0/g,' ').replace(/\\(.)/g,'$1').replace(/\*/g,'').replace(/~~/g,'').trim();}
 function capEl(s){if(!s)return null;return ELEMENTS.find(x=>x.toLowerCase()===s.trim().toLowerCase())||null;}
 function segs(s){return s.split('-').map(x=>x.trim()).filter(Boolean);}
@@ -206,7 +211,7 @@ function parseEntries(text){
       const dis=[];
       if(r.f.disciples){for(const t of r.f.disciples.split(/[,;]/)){const mm=t.trim().match(/^Luma\s+([A-Za-z]+)$/);if(mm)dis.push(mm[1]);}}
       out.push({name,names:r.names.map(stripLuma),path,kind,element,origEl,reason:kind==='none'?(reason||'Branch left blank'):'',
-        rank:r.f.rank||'',star:r.f.star||'',mentor:r.f.mentor||'',role:r.f.role||'',team:r.f.team||'',guild:r.f.guild||'',zodiac:r.f.zodiac||'',disciples:dis});
+        rank:r.f.rank||'',sameAs:r.names.length>1?stripLuma(i===0?r.names[1]:r.names[0]):'',form:r.names.length>1?(i===0?'original':'evolved'):'',mentor:r.f.mentor||'',role:r.f.role||'',team:r.f.team||'',guild:r.f.guild||'',zodiac:r.f.zodiac||'',disciples:dis});
     });
   }
   return out;
@@ -221,6 +226,43 @@ function parseAll(files){
     }
   }
   return out;
+}
+function entriesFromConfig(list){
+  const out=[];
+  for(const g of (list||[])){
+    if(!g||!g.name)continue;
+    let path=g.path?segs(norm(String(g.path))):[];
+    const oe=capEl(String(g.element||''));
+    let kind='none',reason=g.reason||'Branch left blank',pe=null;
+    if(path.length){
+      pe=capEl(path[0]);
+      if(pe){path[0]=pe;kind=path.length===1?'root':'branch';reason='';}
+      else{reason='Unrecognised element "'+path[0]+'"';path=[];}
+    }
+    out.push({name:String(g.name),names:[String(g.name)],path,kind,element:pe||oe,origEl:oe,reason,
+      rank:g.rank||'',sameAs:g.sameAs||'',form:g.form||'',mentor:g.mentor||'',role:g.role||'',team:g.team||'',guild:g.guild||'',zodiac:g.zodiac||'',
+      disciples:Array.isArray(g.disciples)?g.disciples.map(String):[],source:'branches.json'});
+  }
+  return out;
+}
+function mergeEntries(base,imported){
+  const have=new Set(imported.filter(e=>e.name!=='(unnamed)').map(e=>e.name.toLowerCase()));
+  return base.filter(e=>!have.has(e.name.toLowerCase())).concat(imported);
+}
+function exportConfig(entries,roots,cfg){
+  const paths=[];
+  ELEMENTS.forEach(el=>{(function w(n,top){if(!top&&!n.inferred)paths.push(n.path.join('-'));n.kids.forEach(k=>w(k,false));})(roots[el],true);});
+  const zod={};
+  ELEMENTS.forEach(el=>{const names=roots[el].z.map(z=>z.name).concat(roots[el].zg);if(names.length)zod[el]=names;});
+  const g=entries.filter(e=>e.name!=='(unnamed)').map(e=>{
+    const o={name:e.name,path:e.path.join('-')};
+    if(e.kind==='none'){o.element=e.element||'';o.reason=e.reason;}
+    ['rank','mentor','role','team','guild','zodiac','sameAs','form'].forEach(k=>{if(e[k])o[k]=e[k];});
+    if(e.disciples&&e.disciples.length)o.disciples=e.disciples;
+    return o;
+  });
+  const help=cfg._help||'Edit this file to keep branches and Guardians. branches: one Element-Branch-Subbranch path per line. guardians: profiles, filed by path. The order of first-level branches sets their shade slot in theme.css.';
+  return '{\n  "_help": '+JSON.stringify(help)+',\n  "overrides": [\n'+(cfg.overrides||[]).map(x=>'    '+JSON.stringify(x)).join(',\n')+'\n  ],\n  "zodiacRoots": '+JSON.stringify(zod)+',\n  "branches": [\n'+paths.map(x=>'    '+JSON.stringify(x)).join(',\n')+'\n  ],\n  "guardians": [\n'+g.map(x=>'    '+JSON.stringify(x)).join(',\n')+'\n  ]\n}\n';
 }
 function parseOverrides(text){
   const rules=[];
@@ -367,8 +409,22 @@ function renderTree(root,el){
       nodes+=box(PAD,Y(z.row),z.name,'root '+elc+(z.none?' gray':''),key,z.name+' (Zodiac root)'+(z.none?' (no profile yet)':''));
     });
   }
-  const svg='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="'+el+' branch tree">'+links+nodes+'</svg>';
-  return{svg,details};
+  const byName=new Map();
+  all.forEach(n=>n.g.forEach(g=>byName.set(g.name.toLowerCase(),n)));
+  let alias='',hasAlias=false;
+  all.forEach(n=>n.g.forEach(g=>{
+    if(g.form!=='evolved'||!g.sameAs)return;
+    const o=byName.get(g.sameAs.toLowerCase());
+    if(!o||o===n||o.d!==n.d)return;
+    const a=o.row<n.row?o:n,b=a===o?n:o;
+    const cx=X(a.d)+BW/2,y1=Y(a.row)+BH,y2=Y(b.row);
+    if(y2<=y1)return;
+    hasAlias=true;
+    alias+='<path class="alias" d="M'+cx+' '+y1+' V'+y2+'"/>';
+    if(y2-y1>=22)alias+='<text class="aliaslabel" x="'+(cx+8)+'" y="'+((y1+y2)/2)+'" dominant-baseline="central">same person</text>';
+  }));
+  const svg='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="'+el+' branch tree">'+links+alias+nodes+'</svg>';
+  return{svg,details,hasAlias};
 }
 // ==UI==
 const $=id=>document.getElementById(id);
@@ -378,16 +434,17 @@ let S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'');}
-function hasCfgBranches(){return !!(CFG.branches&&CFG.branches.length)||!!Object.values(CFG.zodiacRoots||{}).some(a=>a&&a.length);}
+function hasCfgBranches(){return !!(CFG.branches&&CFG.branches.length)||!!(CFG.guardians&&CFG.guardians.length)||!!Object.values(CFG.zodiacRoots||{}).some(a=>a&&a.length);}
 function sortAll(silent){
-  const entries=parseAll(S.files);
+  const imported=$('jsononly').checked?[]:parseAll(S.files);
+  const entries=mergeEntries(entriesFromConfig(CFG.guardians),imported);
   if(!entries.length&&!hasCfgBranches()){setStatus(S.files.length?'No Guardian profiles found. Each profile needs a "Guardian Name:" line.':'',!!S.files.length);S.roots=null;renderTabs();renderPanel();return false;}
   const rules=parseOverrides((CFG.overrides||[]).join('\n')+'\n'+$('overrides').value);
   applyOverrides(entries,rules);
   const t=buildTrees(entries,{infer:$('infer').checked,branches:CFG.branches,zodiac:CFG.zodiacRoots});
-  S.entries=entries;S.roots=t.roots;S.noBranch=t.noBranch;S.warnings=collectWarnings(entries,t.roots,t.noBranch);
-  if(!silent)setStatus(entries.length?'Sorted '+entries.length+' Guardians from '+S.files.length+' file'+(S.files.length===1?'':'s')+'.':'Showing the branches in branches.json. Import your doc to light them up.');
-  lsSet('luma.files.v1',JSON.stringify(S.files));lsSet('luma.over.v2',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');
+  S.multiSrc=new Set(entries.map(e=>e.source)).size>1;S.entries=entries;S.roots=t.roots;S.noBranch=t.noBranch;S.warnings=collectWarnings(entries,t.roots,t.noBranch);
+  if(!silent)setStatus(imported.length?'Sorted '+entries.length+' Guardians: branches.json plus '+S.files.length+' imported file'+(S.files.length===1?'':'s')+'.':entries.length?'Showing '+entries.length+' Guardians from branches.json.':'Showing the branches in branches.json. Import your doc to light them up.');
+  lsSet('luma.files.v1',JSON.stringify(S.files));lsSet('luma.over.v2',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');lsSet('luma.jsononly.v1',$('jsononly').checked?'1':'0');
   renderTabs();renderPanel();return true;
 }
 async function loadConfig(){
@@ -396,8 +453,8 @@ async function loadConfig(){
     const r=await fetch('branches.json',{cache:'no-cache'});
     if(!r.ok)throw new Error(r.status);
     const j=await r.json();
-    CFG={overrides:Array.isArray(j.overrides)?j.overrides:[],zodiacRoots:j.zodiacRoots||{},branches:Array.isArray(j.branches)?j.branches:[]};
-    note.textContent='Loaded branches.json: '+CFG.branches.length+' branches, '+CFG.overrides.length+' override rules.';
+    CFG={_help:j._help,overrides:Array.isArray(j.overrides)?j.overrides:[],zodiacRoots:j.zodiacRoots||{},branches:Array.isArray(j.branches)?j.branches:[],guardians:Array.isArray(j.guardians)?j.guardians:[]};
+    note.textContent='Loaded branches.json: '+CFG.guardians.length+' Guardians, '+CFG.branches.length+' branches, '+CFG.overrides.length+' override rules.';
   }catch(e){
     CFG=FALLBACK_CONFIG;
     note.textContent='branches.json was not found, so built-in defaults are used. Open the page from your GitHub site (or a local web server) to load it.';
@@ -426,7 +483,7 @@ function detailHtml(d){
   }
   let h='<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div>';
   (d.g||[]).forEach(g=>{
-    const rows=[['Rank',g.rank],['Star Index',g.star],['Mentor',g.mentor],['Primary Role',g.role],['Team',g.team],['Guild',g.guild],['Zodiac',g.zodiac],['File',S.files.length>1?g.source:'']].filter(r=>r[1]);
+    const rows=[['Rank',g.rank],['Same person',g.sameAs?(g.form==='evolved'?'Evolved form of '+g.sameAs:'Evolves into '+g.sameAs):''],['Mentor',g.mentor],['Primary Role',g.role],['Team',g.team],['Guild',g.guild],['Zodiac',g.zodiac],['File',S.multiSrc?g.source:'']].filter(r=>r[1]);
     h+='<dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd>').join('')+'</dl>';
   });
   return h;
@@ -440,7 +497,7 @@ function renderPanel(){
     if(!root.kids.length&&!root.z.length&&!root.zg.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
     const r=renderTree(root,t);S.details=r.details;
     const ec='el-'+t.toLowerCase();
-    p.innerHTML='<div class="legend"><span><i class="sw has '+ec+' shade-2"></i>Has a profile (shade = branch family)</span><span><i class="sw none"></i>Known branch, no profile imported yet</span>'+((root.z.length||root.zg.length)?'<span>Zodiac roots sit left of '+t+'</span>':'')+'</div><div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
+    p.innerHTML='<div class="legend"><span><i class="sw has '+ec+' shade-2"></i>Has a profile (shade = branch family)</span><span><i class="sw none"></i>Known branch, no profile imported yet</span>'+((root.z.length||root.zg.length)?'<span>Zodiac roots sit left of '+t+'</span>':'')+(r.hasAlias?'<span><i class="sw alias-sw"></i>Dashed line = same person (original and evolved form)</span>':'')+'</div><div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
   }else if(t==='No branch yet'){
     const groups=[...ELEMENTS,'No element set'].map(g=>({g,items:S.noBranch.filter(e=>(e.element||'No element set')===g)})).filter(x=>x.items.length);
     if(!groups.length){p.innerHTML='<div class="card empty">Every Guardian has a branch.</div>';return;}
@@ -487,7 +544,14 @@ $('sort').addEventListener('click',()=>{
   renderFiles();sortAll(false);
 });
 $('clear').addEventListener('click',()=>{$('paste').value='';S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:S.tab,details:{}};lsSet('luma.files.v1','');lsSet('luma.doc.v1','');renderFiles();if(hasCfgBranches())sortAll(false);else{setStatus('');renderTabs();renderPanel();}});
-$('resort').addEventListener('click',()=>{if(!S.files.length){setStatus('Import the doc first.',true);return;}sortAll(false);});
+$('resort').addEventListener('click',()=>sortAll(false));
+$('export').addEventListener('click',()=>{
+  if(!S.roots){setStatus('Nothing to download yet.',true);return;}
+  const b=new Blob([exportConfig(S.entries,S.roots,CFG)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='branches.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  setStatus('Downloaded branches.json. Replace the file in your GitHub repo to keep these Guardians.');
+});
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;renderTabs();renderPanel();});
 function pick(g){
   if(!g)return;
@@ -500,6 +564,7 @@ $('panel').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const
 (async function init(){
   $('overrides').value=lsGet('luma.over.v2')||'';
   $('infer').checked=lsGet('luma.infer.v1')==='1';
+  $('jsononly').checked=lsGet('luma.jsononly.v1')==='1';
   renderTabs();renderPanel();
   await loadConfig();
   let saved=null;
