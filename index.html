@@ -88,6 +88,10 @@ details.adv p{margin:8px 0}
 }
 :root[data-theme="dark"] .node:not(.gray) rect{fill:var(--df,var(--surface2));stroke:var(--ds,var(--line))}
 :root[data-theme="dark"] .node:not(.gray) text{fill:var(--dt,var(--ink))}
+.elblock{margin-top:22px}
+.elh{font-size:16px;display:flex;gap:8px;align-items:center;margin:0 0 8px}
+.elh .dot{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.detail.sticky{position:sticky;top:8px;z-index:3;margin:0 0 4px;box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
 .alias{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 3}
 .aliaslabel{fill:var(--muted);font-family:"Manrope",system-ui,sans-serif;font-size:11px}
 .sw.alias-sw{width:0;height:14px;border:0;border-left:2px dashed var(--muted);border-radius:0;margin:0 6px}
@@ -428,9 +432,9 @@ function renderTree(root,el){
 }
 // ==UI==
 const $=id=>document.getElementById(id);
-const COLORS={Fire:'var(--fire)',Earth:'var(--earth)',Water:'var(--water)',Air:'var(--air)','No branch yet':'var(--none)','Check':'var(--warn-ink)'};
+const COLORS={All:'var(--ink)',Fire:'var(--fire)',Earth:'var(--earth)',Water:'var(--water)',Air:'var(--air)','No branch yet':'var(--none)','Check':'var(--warn-ink)'};
 let CFG=FALLBACK_CONFIG;
-let S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};
+let S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:'All',details:{}};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'');}
@@ -465,11 +469,12 @@ function renderFiles(){
 }
 function countFor(f){return parseEntries(f.text).length;}
 function renderTabs(){
-  const names=[...ELEMENTS,'No branch yet','Check'];
+  const names=['All',...ELEMENTS,'No branch yet','Check'];
   $('tabs').innerHTML=names.map(n=>{
     let c='';
     if(S.roots){
-      if(ELEMENTS.includes(n))c=S.entries.filter(e=>e.element===n&&e.kind!=='none').length;
+      if(n==='All')c=S.entries.filter(e=>e.kind!=='none').length;
+      else if(ELEMENTS.includes(n))c=S.entries.filter(e=>e.element===n&&e.kind!=='none').length;
       else if(n==='No branch yet')c=S.noBranch.length;
       else c=S.warnings.length;
     }
@@ -492,6 +497,18 @@ function renderPanel(){
   const p=$('panel');
   if(!S.roots){p.innerHTML='<div class="card empty">Upload or paste your Guardian doc above to sort it.</div>';return;}
   const t=S.tab;
+  if(t==='All'){
+    const det={};let blocks='',alias=false,zod=false;
+    ELEMENTS.forEach(el=>{
+      const root=S.roots[el];
+      if(!root.kids.length&&!root.z.length&&!root.zg.length)return;
+      const r=renderTree(root,el);Object.assign(det,r.details);alias=alias||r.hasAlias;zod=zod||root.z.length>0||root.zg.length>0;
+      blocks+='<section class="elblock"><h2 class="elh" style="--c:'+COLORS[el]+'"><span class="dot"></span>'+el+'</h2><div class="card diagram">'+r.svg+'</div></section>';
+    });
+    S.details=det;
+    p.innerHTML='<div class="legend"><span><i class="sw has el-fire shade-2"></i>Has a profile (shade = branch family)</span><span><i class="sw none"></i>Known branch, no profile imported yet</span>'+(zod?'<span>Zodiac roots sit left of each element</span>':'')+(alias?'<span><i class="sw alias-sw"></i>Dashed line = same person (original and evolved form)</span>':'')+'</div><div class="detail sticky" id="detail">'+detailHtml(null)+'</div>'+(blocks||'<div class="card empty">No Guardians with a branch were found.</div>');
+    return;
+  }
   if(ELEMENTS.includes(t)){
     const root=S.roots[t];
     if(!root.kids.length&&!root.z.length&&!root.zg.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
