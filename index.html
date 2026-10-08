@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luma Guardian branch sorter</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Sora:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+:root{
+  --bg:#F4F3F9;--surface:#FFFFFF;--surface2:#ECEAF5;--line:#D9D6E8;--ink:#1E1B2E;--muted:#625E7A;
+  --fire:#D85A30;--earth:#1D9E75;--water:#378ADD;--air:#7F77DD;--none:#7A768F;
+  --focus:#534AB7;--warn-bg:#FBF1DC;--warn-ink:#633806;
+  --lf-gray:#ECEAE3;--ls-gray:#8A8780;--lt-gray:#5F5E5A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14121F;--surface:#1D1A2C;--surface2:#272440;--line:#34304A;--ink:#ECEAF6;--muted:#A19DBD;
+    --focus:#AFA9EC;--warn-bg:#3A2D12;--warn-ink:#FAC775;
+    --lf-gray:#2A2926;--ls-gray:#888780;--lt-gray:#B4B2A9;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14121F;--surface:#1D1A2C;--surface2:#272440;--line:#34304A;--ink:#ECEAF6;--muted:#A19DBD;
+  --focus:#AFA9EC;--warn-bg:#3A2D12;--warn-ink:#FAC775;
+  --lf-gray:#2A2926;--ls-gray:#888780;--lt-gray:#B4B2A9;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.6}
+h1,h2,h3{font-family:"Sora","Manrope",system-ui,sans-serif;font-weight:600;margin:0;letter-spacing:-0.01em}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 56px}
+header.top{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;margin-bottom:22px}
+header.top h1{font-size:26px}
+header.top p{margin:0;color:var(--muted);max-width:52ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.import{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:760px){.import{grid-template-columns:1fr}}
+.import h2{font-size:16px;margin-bottom:6px}
+.import p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.steps{margin:0 0 12px;padding-left:18px;color:var(--muted);font-size:14px}
+.steps li{margin:2px 0}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:10px 12px;font-size:13px;line-height:1.5}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.status{font-size:13px;color:var(--muted);min-height:20px}
+.status.err{color:#C0392B}
+details.adv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.adv summary{cursor:pointer;font-weight:600;font-size:14px}
+details.adv p{margin:8px 0}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}
+.chk input{margin-top:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 14px}
+.tab{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 15px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;gap:8px;align-items:center}
+.tab .dot{width:10px;height:10px;border-radius:50%;background:var(--c,var(--none))}
+.tab .n{font-weight:500;color:var(--muted);font-size:13px}
+.tab[aria-selected="true"]{border-color:var(--c,var(--ink));background:var(--surface2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;color:var(--muted);margin-bottom:12px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:16px;height:11px;border-radius:3px;border:1px solid}
+.diagram{overflow-x:auto;padding:4px 2px 8px}
+.diagram svg{display:block}
+.node{cursor:pointer}
+.node rect{fill:var(--lf);stroke:var(--ls);stroke-width:1}
+.node text{fill:var(--lt);font-family:"Manrope",system-ui,sans-serif;font-size:13px;font-weight:600;pointer-events:none}
+.node.gray rect{fill:var(--lf-gray);stroke:var(--ls-gray);stroke-dasharray:4 3}
+.node.gray text{fill:var(--lt-gray)}
+.node.sel rect{stroke-width:2.5}
+.node:hover rect{stroke-width:2}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .node:not(.gray) rect{fill:var(--df);stroke:var(--ds)}
+  :root:not([data-theme="light"]) .node:not(.gray) text{fill:var(--dt)}
+}
+:root[data-theme="dark"] .node:not(.gray) rect{fill:var(--df);stroke:var(--ds)}
+:root[data-theme="dark"] .node:not(.gray) text{fill:var(--dt)}
+.link{fill:none;stroke:var(--line);stroke-width:1.5}
+:root[data-theme="light"] .link{stroke:#BDB9D3}
+.detail{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface);min-height:64px;font-size:14px}
+.detail h3{font-size:16px;margin-bottom:4px}
+.detail dl{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;margin:8px 0 0}
+.detail dt{color:var(--muted)}
+.detail dd{margin:0}
+.detail .hint{color:var(--muted)}
+.empty{padding:36px 12px;text-align:center;color:var(--muted)}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.group{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.group h3{font-size:15px;display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.group h3 .dot{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.chip{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:6px 10px;margin-top:6px;font-size:14px}
+.chip small{color:var(--muted);font-size:12px;align-self:center}
+.warns{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.warns li{background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;padding:9px 12px;font-size:14px}
+.note{color:var(--muted);font-size:14px;margin:0 0 12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Luma Guardian branch sorter</h1>
+    <p>Import your Guardian doc and every profile is sorted into its element tree by its Branch Theme.</p>
+  </header>
+
+  <section class="card import" aria-label="Import">
+    <div>
+      <h2>Import the doc</h2>
+      <ol class="steps">
+        <li>In Google Docs: File, then Download.</li>
+        <li>Choose Microsoft Word (.docx), Markdown (.md) or Plain text (.txt).</li>
+        <li>Upload that file here.</li>
+      </ol>
+      <div class="row">
+        <label class="btn primary" for="file">Choose file</label>
+        <input id="file" type="file" accept=".docx,.md,.markdown,.txt,.html,.htm">
+        <span class="status" id="status" role="status" aria-live="polite"></span>
+      </div>
+      <details class="adv" id="advanced">
+        <summary>Branch overrides</summary>
+        <p class="note">One rule per line, written as <code>from-path =&gt; to-path</code>. Use it when your doc writes the same branch two ways. Lines starting with # are ignored.</p>
+        <textarea id="overrides" rows="5" spellcheck="false" aria-label="Branch overrides"></textarea>
+        <label class="chk"><input type="checkbox" id="infer"> <span>Also show disciples that are named in a Disciple line but have no profile yet (gray boxes).</span></label>
+        <div class="row" style="margin-top:10px"><button class="btn" id="resort" type="button">Re-sort</button></div>
+      </details>
+    </div>
+    <div>
+      <h2>Or paste the text</h2>
+      <p>Select all in the doc, copy, and paste here.</p>
+      <textarea id="paste" placeholder="Guardian Name: Luma Blossom&#10;Original Element: Fire&#10;Branch Theme: Fire-Lumen-Moon-Blossom&#10;..." aria-label="Pasted doc text"></textarea>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="sort" type="button">Sort Guardians</button><button class="btn" id="clear" type="button">Clear</button></div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" id="tabs" aria-label="Elements"></div>
+  <section id="panel" aria-live="polite"></section>
+</div>
+
+<script>
+// ==CORE==
+const ELEMENTS=['Fire','Earth','Water','Air'];
+const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','star index':'star','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples'};
+const DEFAULT_OVERRIDES=[
+'# Verdant is written as Earth-Life-Verdant on her own profile but as Earth-Soil-Verdant on the Wildflowers profiles.',
+'Earth-Soil-Verdant => Earth-Life-Verdant',
+'# Halo is written under Vitalis, which is a Fire branch.',
+'Earth-Life-Vitalis-Halo => Earth-Life-Halo'
+].join('\n');
+const PALETTE={
+  Fire:{stops:['#FAC775','#EF9F27','#F0997B','#D85A30','#993C1D'],rf:'#FAECE7',rs:'#993C1D',rt:'#712B13'},
+  Earth:{stops:['#9FE1CB','#5DCAA5','#1D9E75','#0F6E56','#085041'],rf:'#E1F5EE',rs:'#0F6E56',rt:'#085041'},
+  Water:{stops:['#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C'],rf:'#E6F1FB',rs:'#185FA5',rt:'#0C447C'},
+  Air:{stops:['#CECBF6','#AFA9EC','#7F77DD','#534AB7','#3C3489'],rf:'#EEEDFE',rs:'#534AB7',rt:'#3C3489'}
+};
+function norm(s){return s.replace(/[\u2013\u2014\u2212\u2010\u2011]/g,'-').replace(/\u00a0/g,' ').replace(/\\(.)/g,'$1').replace(/\*/g,'').replace(/~~/g,'').trim();}
+function capEl(s){if(!s)return null;return ELEMENTS.find(x=>x.toLowerCase()===s.trim().toLowerCase())||null;}
+function segs(s){return s.split('-').map(x=>x.trim()).filter(Boolean);}
+function stripLuma(n){n=(n||'').replace(/^luma\s*/i,'').trim();return n||'(unnamed)';}
+function parseEntries(text){
+  const recs=[];let cur=null;
+  for(const raw of text.split(/\r?\n/)){
+    const l=norm(raw).replace(/^[-\u2022]\s+/,'');
+    const m=l.match(/^([A-Za-z][A-Za-z ]{2,28}?)\s*:\s*(.*)$/);
+    if(!m)continue;
+    const key=LABELS[m[1].trim().toLowerCase()];
+    if(!key)continue;
+    const val=m[2].trim();
+    if(key==='name'){cur={names:[val],f:{}};recs.push(cur);}
+    else if(key==='evolved'){if(cur)cur.names.push(val);}
+    else if(cur&&!(key in cur.f))cur.f[key]=val;
+  }
+  const out=[],seen=new Set();
+  for(const r of recs){
+    let braw=(r.f.branch||'').trim();
+    const dash=/^-+$/.test(braw);
+    if(dash)braw='';
+    const orig=(r.f.origEl||'').trim();
+    let reason='';
+    if(!braw){
+      if(orig.includes('-'))braw=orig;
+      else reason=dash?'Branch listed as a dash':'Branch left blank';
+    }
+    const parts=braw?braw.split('/').map(x=>x.trim()):[];
+    const p0=parts.length?segs(parts[0]):[];
+    const origEl=capEl(segs(orig)[0]||'');
+    r.names.forEach((nm,i)=>{
+      let path=p0;
+      if(i>0&&parts[i])path=parts[i].includes('-')?segs(parts[i]):p0.slice(0,-1).concat(parts[i]);
+      path=path.slice();
+      const pathEl=path.length?capEl(path[0]):null;
+      let kind='branch',element=pathEl||origEl;
+      if(!path.length){kind='none';}
+      else if(!pathEl){kind='none';reason='Unrecognised element "'+path[0]+'"';element=origEl;path=[];}
+      else{path[0]=pathEl;if(path.length===1)kind='root';}
+      const name=stripLuma(nm);
+      const key=name.toLowerCase()+'|'+path.join('-').toLowerCase();
+      if(seen.has(key)&&name!=='(unnamed)')return;
+      seen.add(key);
+      const dis=[];
+      if(r.f.disciples){for(const t of r.f.disciples.split(/[,;]/)){const mm=t.trim().match(/^Luma\s+([A-Za-z]+)$/);if(mm)dis.push(mm[1]);}}
+      out.push({name,names:r.names.map(stripLuma),path,kind,element,origEl,reason:kind==='none'?(reason||'Branch left blank'):'',
+        rank:r.f.rank||'',star:r.f.star||'',mentor:r.f.mentor||'',role:r.f.role||'',team:r.f.team||'',guild:r.f.guild||'',zodiac:r.f.zodiac||'',disciples:dis});
+    });
+  }
+  return out;
+}
+function parseOverrides(text){
+  const rules=[];
+  for(const line of (text||'').split(/\r?\n/)){
+    const l=norm(line);
+    if(!l||l.startsWith('#'))continue;
+    const m=l.split(/=>|->/);
+    if(m.length!==2)continue;
+    const a=segs(m[0]),b=segs(m[1]);
+    if(a.length&&b.length)rules.push({a,b});
+  }
+  return rules;
+}
+function applyOverrides(entries,rules){
+  for(const e of entries){
+    if(e.kind!=='branch')continue;
+    for(const r of rules){
+      if(r.a.length<=e.path.length&&r.a.every((s,i)=>s.toLowerCase()===e.path[i].toLowerCase())){
+        e.path=r.b.concat(e.path.slice(r.a.length));
+        const el=capEl(e.path[0]);if(el){e.path[0]=el;e.element=el;}
+        break;
+      }
+    }
+  }
+  return entries;
+}
+function mk(label,path){return{label,path:path||[label],kids:[],map:new Map(),g:[],inferred:false,z:[]};}
+function child(n,label,inferred){
+  const k=label.toLowerCase();let c=n.map.get(k);
+  if(!c){c=mk(label,n.path.concat(label));c.inferred=!!inferred;n.map.set(k,c);n.kids.push(c);}
+  return c;
+}
+function buildTrees(entries,opts){
+  opts=opts||{};
+  const roots={};ELEMENTS.forEach(e=>roots[e]=mk(e));
+  const noBranch=[],names=new Set();
+  entries.forEach(e=>names.add(e.name.toLowerCase()));
+  for(const e of entries){
+    if(e.kind==='root')roots[e.element].z.push(e);
+    else if(e.kind==='branch'){
+      let n=roots[e.element];
+      for(const s of e.path.slice(1))n=child(n,s);
+      n.g.push(e);e.node=n;
+    }else noBranch.push(e);
+  }
+  if(opts.infer){
+    for(const e of entries){
+      if(e.kind!=='branch'||!e.node)continue;
+      for(const d of e.disciples){
+        if(names.has(d.toLowerCase()))continue;
+        if(!e.node.map.has(d.toLowerCase()))child(e.node,d,true);
+      }
+    }
+  }
+  const size=n=>{n.size=1+n.kids.reduce((s,k)=>s+size(k),0);return n.size;};
+  const sortk=n=>{n.kids.sort((a,b)=>b.size-a.size);n.kids.forEach(sortk);};
+  ELEMENTS.forEach(e=>{size(roots[e]);sortk(roots[e]);});
+  return{roots,noBranch};
+}
+function collectWarnings(entries,roots,noBranch){
+  const w=[],labels=new Map();
+  for(const el of ELEMENTS){
+    (function walk(n,top){
+      if(!top){const k=n.label.toLowerCase();if(!labels.has(k))labels.set(k,new Set());labels.get(k).add(n.path.join('-'));}
+      n.kids.forEach(c=>walk(c,false));
+    })(roots[el],true);
+  }
+  for(const [k,set] of labels){if(set.size>1)w.push('The branch name "'+[...set][0].split('-').pop()+'" appears in more than one place: '+[...set].join('  |  ')+'. If these are the same branch, add an override.');}
+  for(const e of entries){
+    if(e.kind==='branch'&&e.path[e.path.length-1].toLowerCase()!==e.name.toLowerCase())w.push(e.name+' is filed under '+e.path.join('-')+', but the last branch name is "'+e.path[e.path.length-1]+'".');
+    if(e.kind!=='none'&&e.origEl&&e.element&&e.origEl!==e.element)w.push(e.name+': Original Element says '+e.origEl+', but the Branch Theme starts with '+e.element+'.');
+  }
+  for(const e of noBranch)if(/^Unrecognised/.test(e.reason))w.push(e.name+': '+e.reason+'.');
+  return w;
+}
+function mix(a,b,t){
+  const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const A=p(a),B=p(b);
+  return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+function lum(h){const [r,g,b]=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .2126*r+.7152*g+.0722*b;}
+function sample(stops,i,n){
+  if(n<=1)return stops[0];
+  const pos=(i/(n-1))*(stops.length-1),lo=Math.floor(pos),hi=Math.min(stops.length-1,lo+1);
+  return mix(stops[lo],stops[hi],pos-lo);
+}
+function shadeVars(el,i,n){
+  const lf=sample(PALETTE[el].stops,i,n);
+  const ls=mix(lf,'#000000',.45);
+  const lt=lum(lf)>0.45?'#1F1A14':'#FBF7F2';
+  return '--lf:'+lf+';--ls:'+ls+';--lt:'+lt+';--df:'+mix(lf,'#14110E',.62)+';--ds:'+lf+';--dt:#F4EFE9';
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderTree(root,el){
+  const BW=116,BH=28,GAP=18,PITCH=BW+GAP,ROWH=36,PAD=20;
+  const off=root.z.length?1:0;
+  let row=0,maxD=0;
+  const all=[];
+  (function walk(n,d,sh){
+    n.d=d;n.sh=sh;maxD=Math.max(maxD,d);all.push(n);
+    if(!n.kids.length){n.row=row++;}
+    else{n.kids.forEach((k,i)=>walk(k,d+1,d===0?i:sh));n.row=(n.kids[0].row+n.kids[n.kids.length-1].row)/2;}
+  })(root,0,-1);
+  root.z.forEach((e,i)=>{e.row=root.row+i-(root.z.length-1)/2;});
+  let minRow=Math.min(...all.map(n=>n.row),...root.z.map(e=>e.row));
+  let maxRow=Math.max(...all.map(n=>n.row),...root.z.map(e=>e.row));
+  const X=d=>PAD+(d+off)*PITCH,Y=r=>PAD+(r-minRow)*ROWH;
+  const W=PAD*2+(maxD+1+off)*PITCH-GAP,H=PAD*2+(maxRow-minRow)*ROWH+BH;
+  const nshade=root.kids.length;
+  const details={};
+  let links='',nodes='',id=0;
+  const rootVars='--lf:'+PALETTE[el].rf+';--ls:'+PALETTE[el].rs+';--lt:'+PALETTE[el].rt+';--df:'+mix(PALETTE[el].stops[2],'#14110E',.7)+';--ds:'+PALETTE[el].stops[1]+';--dt:#F4EFE9';
+  function box(x,y,label,cls,style,key,title){
+    const long=label.length>13?' textLength="'+(BW-16)+'" lengthAdjust="spacingAndGlyphs"':'';
+    return '<g class="node '+cls+'" data-k="'+key+'" style="'+style+'" tabindex="0" role="button" aria-label="'+esc(title)+'"><title>'+esc(title)+'</title><rect x="'+x+'" y="'+y+'" width="'+BW+'" height="'+BH+'" rx="6"/><text x="'+(x+BW/2)+'" y="'+(y+BH/2)+'" text-anchor="middle" dominant-baseline="central"'+long+'>'+esc(label)+'</text></g>';
+  }
+  function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
+  all.forEach(n=>{
+    const key=el+':'+(id++);
+    const x=X(n.d),y=Y(n.row);
+    if(n.d===0){
+      details[key]={title:el,sub:'Element root',rows:[['Branches',String(root.kids.length)],['Zodiac roots',root.z.map(z=>z.name).join(', ')||'none']]};
+      nodes+=box(x,y,el,'',rootVars+';stroke-width:2',key,el);
+    }else{
+      const has=n.g.length>0;
+      if(has){const g=n.g[0];details[key]={title:n.g.map(q=>q.name).join(' / '),sub:n.path.join(' > '),g:n.g};}
+      else details[key]={title:n.label,sub:n.path.join(' > '),none:true,inferred:n.inferred,by:descGuardians(n)};
+      nodes+=box(x,y,n.label,has?'':'gray',has?shadeVars(el,n.sh,nshade):'',key,n.label+(has?'':' (no profile yet)'));
+    }
+    if(n.kids.length){
+      const sx=x+BW,mid=sx+GAP/2,sy=Y(n.row)+BH/2;
+      const ys=n.kids.map(k=>Y(k.row)+BH/2);
+      links+='<path class="link" d="M'+sx+' '+sy+' H'+mid+' M'+mid+' '+Math.min(...ys,sy)+' V'+Math.max(...ys,sy)+n.kids.map((k,i)=>' M'+mid+' '+ys[i]+' H'+X(k.d)).join('')+'"/>';
+    }
+  });
+  if(root.z.length){
+    const rx=X(0),sx=PAD+BW,mid=sx+GAP/2,ry=Y(root.row)+BH/2;
+    const ys=root.z.map(z=>Y(z.row)+BH/2);
+    links+='<path class="link" d="M'+rx+' '+ry+' H'+mid+' M'+mid+' '+Math.min(...ys,ry)+' V'+Math.max(...ys,ry)+ys.map(v=>' M'+sx+' '+v+' H'+mid).join('')+'"/>';
+    root.z.forEach(z=>{
+      const key=el+':'+(id++);
+      details[key]={title:z.name,sub:'Zodiac root of '+el,g:[z]};
+      nodes+=box(PAD,Y(z.row),z.name,'',rootVars,key,z.name+' (Zodiac root)');
+    });
+  }
+  const svg='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="'+el+' branch tree">'+links+nodes+'</svg>';
+  return{svg,details};
+}
+// ==UI==
+const $=id=>document.getElementById(id);
+const COLORS={Fire:'var(--fire)',Earth:'var(--earth)',Water:'var(--water)',Air:'var(--air)','No branch yet':'var(--none)','Check':'var(--warn-ink)'};
+let S={entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'');}
+function sortText(text,silent){
+  const entries=parseEntries(text);
+  if(!entries.length){setStatus('No Guardian profiles found. Each profile needs a "Guardian Name:" line.',true);return false;}
+  applyOverrides(entries,parseOverrides($('overrides').value));
+  const t=buildTrees(entries,{infer:$('infer').checked});
+  S.entries=entries;S.roots=t.roots;S.noBranch=t.noBranch;S.warnings=collectWarnings(entries,t.roots,t.noBranch);
+  if(!silent)setStatus('Sorted '+entries.length+' Guardians.');
+  lsSet('luma.doc.v1',text);lsSet('luma.over.v1',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');
+  renderTabs();renderPanel();return true;
+}
+function renderTabs(){
+  const names=[...ELEMENTS,'No branch yet','Check'];
+  $('tabs').innerHTML=names.map(n=>{
+    let c='';
+    if(S.roots){
+      if(ELEMENTS.includes(n))c=S.entries.filter(e=>e.element===n&&e.kind!=='none').length;
+      else if(n==='No branch yet')c=S.noBranch.length;
+      else c=S.warnings.length;
+    }
+    return '<button class="tab" role="tab" type="button" data-tab="'+n+'" aria-selected="'+(S.tab===n)+'" style="--c:'+COLORS[n]+'"><span class="dot"></span>'+n+(c!==''?' <span class="n">'+c+'</span>':'')+'</button>';
+  }).join('');
+}
+function detailHtml(d){
+  if(!d)return '<span class="hint">Select a box to see the profile.</span>';
+  if(d.none){
+    return '<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div><p style="margin:8px 0 0">'+(d.inferred?'Named as a disciple, but no profile in the doc yet.':'This branch is part of the Branch Theme of '+(d.by.length?esc(d.by.join(', ')):'another Guardian')+', but no Guardian has this branch as their own yet.')+'</p>';
+  }
+  let h='<h3>'+esc(d.title)+'</h3><div class="hint">'+esc(d.sub)+'</div>';
+  (d.g||[]).forEach(g=>{
+    const rows=[['Rank',g.rank],['Star Index',g.star],['Mentor',g.mentor],['Primary Role',g.role],['Team',g.team],['Guild',g.guild],['Zodiac',g.zodiac]].filter(r=>r[1]);
+    h+='<dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd>').join('')+'</dl>';
+  });
+  return h;
+}
+function renderPanel(){
+  const p=$('panel');
+  if(!S.roots){p.innerHTML='<div class="card empty">Upload or paste your Guardian doc above to sort it.</div>';return;}
+  const t=S.tab;
+  if(ELEMENTS.includes(t)){
+    const root=S.roots[t];
+    if(!root.kids.length&&!root.z.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
+    const r=renderTree(root,t);S.details=r.details;
+    p.innerHTML='<div class="legend"><span><i class="sw" style="background:'+PALETTE[t].stops[1]+';border-color:'+PALETTE[t].stops[3]+'"></i>Has a profile (shade = branch family)</span><span><i class="sw" style="background:var(--lf-gray);border-color:var(--ls-gray);border-style:dashed"></i>Named in the doc, no profile yet</span>'+(root.z.length?'<span>Zodiac roots sit left of '+t+'</span>':'')+'</div><div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
+  }else if(t==='No branch yet'){
+    const groups=[...ELEMENTS,'No element set'].map(g=>({g,items:S.noBranch.filter(e=>(e.element||'No element set')===g)})).filter(x=>x.items.length);
+    if(!groups.length){p.innerHTML='<div class="card empty">Every Guardian has a branch.</div>';return;}
+    p.innerHTML='<p class="note">These profiles have no usable Branch Theme yet. Add one in the doc and re-import.</p><div class="groups">'+groups.map(x=>'<div class="group"><h3 style="--c:'+(COLORS[x.g]||'var(--none)')+'"><span class="dot"></span>'+x.g+'</h3>'+x.items.map(e=>'<div class="chip"><span>'+esc(e.name)+'</span><small>'+esc(e.reason)+'</small></div>').join('')+'</div>').join('')+'</div>';
+  }else{
+    p.innerHTML=S.warnings.length?'<p class="note">These are places where the doc disagrees with itself. Nothing is changed automatically beyond your overrides.</p><ul class="warns">'+S.warnings.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>':'<div class="card empty">No conflicts found.</div>';
+  }
+}
+function htmlToText(h){
+  const d=new DOMParser().parseFromString(h.replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|li|h[1-6]|tr)>/gi,'\n$&'),'text/html');
+  return d.body?d.body.textContent:'';
+}
+async function readFile(f){
+  const n=f.name.toLowerCase();
+  if(n.endsWith('.docx')){
+    if(typeof mammoth==='undefined')throw new Error('The .docx reader did not load. Export as Markdown or Plain text instead, or paste the text.');
+    const r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});return r.value;
+  }
+  const t=await f.text();
+  return /\.html?$/.test(n)?htmlToText(t):t;
+}
+$('file').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  setStatus('Reading '+f.name+'...');
+  try{const text=await readFile(f);$('paste').value=text.length>400000?'':text;sortText(text);}
+  catch(err){setStatus(err.message||'Could not read that file.',true);}
+  e.target.value='';
+});
+$('sort').addEventListener('click',()=>{const t=$('paste').value;if(!t.trim()){setStatus('Paste the doc text first.',true);return;}sortText(t);});
+$('clear').addEventListener('click',()=>{$('paste').value='';S={entries:[],roots:null,noBranch:[],warnings:[],tab:'Fire',details:{}};lsSet('luma.doc.v1','');setStatus('');renderTabs();renderPanel();});
+$('resort').addEventListener('click',()=>{const t=lsGet('luma.doc.v1')||$('paste').value;if(!t){setStatus('Import the doc first.',true);return;}sortText(t);});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;renderTabs();renderPanel();});
+function pick(g){
+  if(!g)return;
+  document.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
+  g.classList.add('sel');
+  const d=$('detail');if(d)d.innerHTML=detailHtml(S.details[g.dataset.k]);
+}
+$('panel').addEventListener('click',e=>pick(e.target.closest('.node')));
+$('panel').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest&&e.target.closest('.node');if(g){e.preventDefault();pick(g);}}});
+(function init(){
+  const ov=lsGet('luma.over.v1');
+  $('overrides').value=ov===null||ov===''?DEFAULT_OVERRIDES:ov;
+  $('infer').checked=lsGet('luma.infer.v1')==='1';
+  renderTabs();renderPanel();
+  const saved=lsGet('luma.doc.v1');
+  if(saved){$('paste').value=saved.length>400000?'':saved;sortText(saved,true);setStatus('Restored your last import. Upload again to refresh.');}
+})();
+</script>
+</body>
+</html>
