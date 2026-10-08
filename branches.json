@@ -165,6 +165,6 @@
     {"name":"Taurus","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Taurus"},
     {"name":"Virgo","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Virgo"},
     {"name":"Capricorn","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Capricorn"},
-    {"name":"Halo","path":"Fire-Vitalist-Halo","rank":"Disciple"}
+    {"name":"Halo","path":"Fire-Vitalis-Halo","rank":"Disciple"}
   ]
 }
