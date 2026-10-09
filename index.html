@@ -423,7 +423,7 @@ function renderTree(root,el){
     const dis=g.disciples&&g.disciples.length?g.disciples.join(', '):(n&&n.kids.length?n.kids.map(k=>k.label).join(', '):'');
     return{name:g.name+(g.sameAs?(g.form==='evolved'?' (evolved form of '+g.sameAs+')':' (evolves into '+g.sameAs+')'):''),
       branch:zroot?el+' (Zodiac root)':(g.path&&g.path.length?g.path.join(' \u203a '):unk('')),
-      civ:unk(g.info&&g.info['Civilian Name']),rank:unk(g.rank),role:unk(g.role),base:unk(g.base||g.guild),mentor:zroot?'None':unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:(/disciple/i.test(g.rank||'')&&!/full/i.test(g.rank||''))?'None':((dis||!g.noDisc)?unk(dis):'None'),status:g.status||''};
+      civ:unk(g.info&&g.info['Civilian Name']),rank:unk(g.rank),role:unk(g.role),base:unk(g.base),mentor:zroot?'None':unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:(/disciple/i.test(g.rank||'')&&!/full/i.test(g.rank||''))?'None':((dis||!g.noDisc)?unk(dis):'None'),status:g.status||''};
   }
   const zodOf=n=>{const top=n.d>0?root.kids[n.sh]:null;return top&&root.zmap?root.zmap.get(top.label.toLowerCase()):null;};
   function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
