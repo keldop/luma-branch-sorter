@@ -295,7 +295,7 @@ function exportConfig(entries,roots,cfg){
   const paths=[];
   ELEMENTS.forEach(el=>{(function w(n,top){if(!top&&!n.inferred)paths.push(n.path.join('-'));n.kids.forEach(k=>w(k,false));})(roots[el],true);});
   const zod={};
-  ELEMENTS.forEach(el=>{const names=roots[el].z.map(z=>z.name).concat(roots[el].zg);if(names.length)zod[el]=names;});
+  ELEMENTS.forEach(el=>{const r=roots[el],names=r.z.map(z=>z.name).concat(r.zg),fi=n=>{const i=r.kids.findIndex(k=>(r.zmap&&r.zmap.get(k.label.toLowerCase()))===n);return i<0?1e6:i;};const o=names.map((n,i)=>[n,fi(n)*1000+i]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);if(o.length)zod[el]=o;});
   const g=entries.filter(e=>e.name!=='(unnamed)').map(e=>{
     const o={name:e.name,path:e.path.join('-')};
     if(e.kind==='none'){o.element=e.element||'';o.reason=e.reason;}
@@ -424,6 +424,8 @@ const slug=x=>String(x).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+
 function renderTree(root,el){
   const BW=116,BH=28,GAP=18,PITCH=BW+GAP,ROWH=36,PAD=20,MAXSLOT=7;
   const zs=root.z.map(e=>({name:e.name,g:[e]})).concat((root.zg||[]).map(n=>({name:n,none:true})));
+  {const fi=n=>{const i=root.kids.findIndex(k=>(root.zmap&&root.zmap.get(k.label.toLowerCase()))===n);return i<0?1e6:i;};
+   zs.forEach((z,i)=>{z.o=fi(z.name)*1000+i;});zs.sort((a,b)=>a.o-b.o);}
   const off=zs.length?1:0,elc='el-'+el.toLowerCase();
   let row=0,maxD=0;
   const all=[];
@@ -449,7 +451,7 @@ function renderTree(root,el){
     const dis=g.disciples&&g.disciples.length?g.disciples.join(', '):(n&&n.kids.length?n.kids.map(k=>k.label).join(', '):'');
     return{name:g.name+(g.sameAs?(g.form==='evolved'?' (evolved form of '+g.sameAs+')':' (evolves into '+g.sameAs+')'):''),
       branch:zroot?el+' (Zodiac root)':(g.path&&g.path.length?g.path.join(' \u203a '):unk('')),
-      base:unk(g.base||g.guild),mentor:unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:unk(dis),status:g.status||''};
+      role:unk(g.role),base:unk(g.base||g.guild),mentor:unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:unk(dis),status:g.status||''};
   }
   const zodOf=n=>{const top=n.d>0?root.kids[n.sh]:null;return top&&root.zmap?root.zmap.get(top.label.toLowerCase()):null;};
   function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
@@ -466,7 +468,7 @@ function renderTree(root,el){
       else{
         const pm=n.par&&n.par.d>0?(n.par.g.length?n.par.g.map(q=>q.name).join(' / '):n.par.label):'';
         details[key]={title:n.label,sub:n.path.join(' > '),none:true,inferred:n.inferred,by:descGuardians(n),
-          cards:[{name:n.label,branch:n.path.join(' \u203a '),base:BLANK,mentor:unk(pm),disciples:unk(n.kids.map(k=>k.label).join(', ')),status:''}]};
+          cards:[{name:n.label,branch:n.path.join(' \u203a '),role:BLANK,base:BLANK,mentor:unk(pm),disciples:unk(n.kids.map(k=>k.label).join(', ')),status:''}]};
       }
       nodes+=box(x,y,n.label,elc+' shade-'+(nb<2?0:Math.round(n.sh*MAXSLOT/(nb-1)))+' b-'+slug(top.label)+(zn?' z-'+slug(zn):'')+(zn&&n.d>=2?' gen-'+Math.min(n.d,5):'')+(st?' st-'+st:'')+(has?'':' gray'),key,n.label+(has?'':' (no profile yet)')+(st?' ('+st+')':''),st);
     }
@@ -483,7 +485,7 @@ function renderTree(root,el){
     zs.forEach(z=>{
       const key=el+':'+(id++);
       const zst=z.g?(z.g[0].status||''):'';
-      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',base:BLANK,mentor:BLANK,disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
+      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',role:BLANK,base:BLANK,mentor:BLANK,disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
       nodes+=box(PAD,Y(z.row),z.name,'root '+elc+' z-'+slug(z.name)+(zst?' st-'+zst:'')+(z.none?' gray':''),key,z.name+' (Zodiac root)'+(z.none?' (no profile yet)':'')+(zst?' ('+zst+')':''),zst);
     });
   }
@@ -562,7 +564,7 @@ function dl(rows){return '<dl class="std">'+rows.map(r=>'<dt>'+r[0]+'</dt><dd'+(
 function stdCard(c,hasG,k,i){
   const badge=c.status?'<span class="badge st-'+c.status+'">'+(c.status==='deceased'?'\u2020 Deceased':'R Retired')+'</span>':'';
   return '<div class="stdcard"><div class="sh"><h3>'+esc(c.name)+'</h3>'+badge+'</div>'+
-    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
+    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
     (c.name.includes('(')?'<p class="same">'+esc(c.name.replace(/^.*\((.*)\)$/,'$1'))+'</p>':'')+
     (hasG?'<button type="button" class="btn full" data-k="'+esc(k)+'" data-i="'+i+'">View full info</button>':'<p class="hint">No profile yet.</p>')+'</div>';
 }
