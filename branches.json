@@ -1,6 +1,8 @@
 {
   "_help": "Edit this file to keep branches and Guardians. \"branches\": one Element-Branch-Subbranch path per line (parents are created automatically; a path with no Guardian shows as a gray box). \"guardians\": profiles, each filed by its path. \"zodiacRoots\": names shown left of an element. \"overrides\": from-path => to-path. The order of first-level branches sets their shade slot in theme.css (first = lightest).",
   "overrides": [
+    "Earth-Soil-Verdant => Earth-Life-Verdant",
+    "Earth-Life-Vitalis-Halo => Earth-Life-Halo"
   ],
   "zodiacRoots": {"Fire":["Ophiuchus","Leo","Aries","Sagittarius"],"Earth":["Taurus","Virgo","Capricorn"],"Water":["Scorpio","Pisces","Cancer"],"Air":["Aquarius","Libra","Gemini"]},
   "branches": [
@@ -22,7 +24,6 @@
     "Fire-Blaze-Lantern",
     "Fire-Vitalis",
     "Fire-Vitalis-Solace",
-    "Fire-Vitalis-Halo",
     "Fire-Umbra",
     "Fire-Firewall",
     "Earth-Life",
@@ -43,6 +44,7 @@
     "Earth-Life-Eclipsa",
     "Earth-Life-Entoma",
     "Earth-Life-Fauna",
+    "Earth-Life-Halo",
     "Earth-Life-Toxin",
     "Earth-Life-Sauria",
     "Earth-Mineral",
@@ -165,6 +167,6 @@
     {"name":"Taurus","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Taurus"},
     {"name":"Virgo","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Virgo"},
     {"name":"Capricorn","path":"Earth","rank":"Full-Fledged Guardian","mentor":"-","zodiac":"Capricorn"},
-    {"name":"Halo","path":"Fire-Vitalis-Halo","rank":"Disciple"}
+    {"name":"Halo","path":"Earth-Life-Halo","rank":"Disciple"}
   ]
 }
