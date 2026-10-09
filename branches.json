@@ -3,10 +3,7 @@
  "hiddenFields": [
   "Date of Birth",
   "Breast Size",
-  "Ding Dong Size",
-  "Height",
-  "Weight",
-  "Blood Type"
+  "Ding Dong Size"
  ],
  "overrides": [
   "Earth-Soil-Verdant => Earth-Life-Verdant"
@@ -124,8 +121,10 @@
    "team": "Flower Sisters",
    "guild": "Silver Veil",
    "zodiac": "Sagittarius",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Lumina Lee Jiā Xīn (李佳昕)",
+    "Nickname": "Mimi (Family’s and Luna’s Nickname), Mini (Brother’s Nickname)",
     "Age": "25",
     "Gender": "Female",
     "Zodiac": "Sagittarius",
@@ -139,7 +138,10 @@
     "Primary Role": "Attacker(Mage)",
     "Passed Tests": "Support(Barrier, Researcher), Attacker(Mage), Strategist",
     "Power Color": "Pink-Gold",
+    "Height": "155 cm",
+    "Weight": "55 kg",
     "Spirit Animal": "Black Cat",
+    "Blood Type": "O-",
     "Awakened Date": "Feb 2016",
     "Awakened By": "Luma Verdant",
     "Relationship": "Single; Later develops a relationship with Luma Coffea.",
@@ -156,8 +158,7 @@
     "Aster",
     "Marigold",
     "Lotus"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "Flora",
@@ -168,6 +169,7 @@
    "team": "Flower Sisters",
    "guild": "Silver Veil",
    "zodiac": "Capricorn",
+   "base": "Singapore",
    "sameAs": "EmberFlora",
    "form": "original",
    "info": {
@@ -188,7 +190,10 @@
     "Team": "Flower Sisters",
     "Guild": "Silver Veil",
     "Power Color": "Green / Green-Red",
+    "Height": "165 cm",
+    "Weight": "67 kg",
     "Spirit Animal": "Golden Retriever",
+    "Blood Type": "B+",
     "Awakened Date": "Jan 2016",
     "Awakened By": "Luma Verdant"
    },
@@ -199,8 +204,7 @@
     "Coffea",
     "Fractal",
     "Clover"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "EmberFlora",
@@ -211,6 +215,7 @@
    "team": "Flower Sisters",
    "guild": "Silver Veil",
    "zodiac": "Capricorn",
+   "base": "Singapore",
    "sameAs": "Flora",
    "form": "evolved",
    "info": {
@@ -231,7 +236,10 @@
     "Team": "Flower Sisters",
     "Guild": "Silver Veil",
     "Power Color": "Green / Green-Red",
+    "Height": "165 cm",
+    "Weight": "67 kg",
     "Spirit Animal": "Golden Retriever",
+    "Blood Type": "B+",
     "Awakened Date": "Jan 2016",
     "Awakened By": "Luma Verdant"
    },
@@ -242,8 +250,7 @@
     "Coffea",
     "Fractal",
     "Clover"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "Coffea",
@@ -253,6 +260,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Taurus",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Joe Tan Nuǎn Yán (陈暖言)",
     "Age": "27",
@@ -271,12 +279,14 @@
     "Guild": "Silver Veil (Originally);",
     "Close bonds": "Friends with Luma Fractal, Luma Aster, Luma Marigold",
     "Power Color": "Brown",
+    "Height": "180 cm",
+    "Weight": "77 kg",
     "Spirit Animal": "Wolf",
+    "Blood Type": "A+",
     "Awakened Date": "17 Oct 2025",
     "Awakened By": "Luma Blossom",
     "Personality": "Joe is gentle, patient and dependable, with a calm presence that makes people feel safe around him. He tends to speak softly and rarely reacts impulsively, preferring to observe first and act once he understands the situation."
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Fractal",
@@ -286,6 +296,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Virgo",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Felix Ang Bó Wén (洪博文)",
     "Age": "27",
@@ -304,12 +315,14 @@
     "Power Color": "Turquoise",
     "Team": "Wildflowers",
     "Guild": "Silver Veil (Originally);",
+    "Height": "176 cm",
+    "Weight": "73 kg",
     "Spirit Animal": "Raven",
+    "Blood Type": "B+",
     "Awakened Date": "17 Oct 2025",
     "Awakened By": "Luma Blossom",
     "Personality": "Analytical, precise, and observant, with a dry sense of humor. Felix tends to overthink and prefers clear logic, but he can be surprisingly playful and expressive around people he is comfortable with. He shows care through practical actions and often gets awkward or defensive when his softer feelings are pointed out."
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Aster",
@@ -319,6 +332,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Capricorn",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Amelia Chua Zǐ Xuān (蔡紫瑄)",
     "Age": "24",
@@ -337,11 +351,12 @@
     "Guild": "Silver Veil (Originally);",
     "Close bonds": "Friends with Luma Coffea, Luma Fractal",
     "Power Color": "Purple",
+    "Height": "162 cm",
+    "Weight": "51 kg",
     "Spirit Animal": "Deer/Doe",
     "Awakened Date": "17 Oct 2025",
     "Awakened By": "Luma Flora"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Marigold",
@@ -351,6 +366,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Capricorn",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Aurelia Chua Jin Yuè (蔡金悦)",
     "Age": "24",
@@ -369,12 +385,13 @@
     "Close bonds": "Friends with Luma Coffea, Luma Fractal",
     "Possible Future Role": "Attack",
     "Power Color": "Gold",
+    "Height": "162 cm",
+    "Weight": "55 kg",
     "Spirit Animal": "Red Fox",
     "Awakened Date": "17 Oct 2025",
     "Awakened By": "Luma Flora",
     "Personality": "courageous and likes teasing"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Clover",
@@ -384,6 +401,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil",
    "zodiac": "Capricorn",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Asher Lim Ruì Qí (林瑞祺)",
     "Age": "25",
@@ -402,11 +420,12 @@
     "Guild": "Silver Veil",
     "Power Color": "Green-Gold",
     "Possible Future Role": "Support",
+    "Height": "180",
     "Spirit Animal": "Red Fox",
+    "Blood Type": "O-",
     "Awakened Date": "17 Dec 2025",
     "Personality": "Clever • Observant • Adaptable • Independent • Dryly playful • Easily reactive when provoked • Quietly affectionate • Loyal • Practical • Mischievous around people he trusts"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Lotus",
@@ -416,6 +435,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Pisces",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Adrian Koh Jùn Háo (许俊豪)",
     "Age": "29",
@@ -437,8 +457,7 @@
     "Spirit Animal": "Crane",
     "Awakened Date": "2026",
     "Personality": "Adrian is a calm, easygoing man with a dry sense of humour. He is friendly without being loud, enjoys lightly teasing people he is close to, and is equally comfortable sitting in silence."
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Iris",
@@ -448,6 +467,7 @@
    "team": "Wildflowers",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Leo",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Mira Tan",
     "Age": "39",
@@ -464,9 +484,10 @@
     "Likely Primary Role": "Shadow, Strategist (Works behind the scenes)",
     "Team": "Wildflowers",
     "Guild": "Silver Veil (Originally);",
-    "Civilian Occupation": "A Software Engineer, Team Supervisor at LumaSoft"
-   },
-   "base": "Singapore"
+    "Civilian Occupation": "A Software Engineer, Team Supervisor at LumaSoft",
+    "Height": "164 cm",
+    "Weight": "60 kg"
+   }
   },
   {
    "name": "Chroma",
@@ -477,6 +498,7 @@
    "team": "- / Wildflowers Associate",
    "guild": "Silver Veil;",
    "zodiac": "Gemini",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Marcus Tan",
     "Age": "41",
@@ -494,9 +516,10 @@
     "Team": "- / Wildflowers Associate",
     "Guild": "Silver Veil;",
     "Civilian Occupation": "Freelance Graphic Designer",
+    "Height": "179 cm",
+    "Weight": "75 kg",
     "Spirit Animal": "Chameleon"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Lumen",
@@ -507,6 +530,7 @@
    "team": "Eclipse",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Sagittarius",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Elaine Lu",
     "Age": "800; physically appears around 30",
@@ -525,6 +549,8 @@
     "Team": "Eclipse",
     "Guild": "Silver Veil (Originally);",
     "Civilian Occupation": "Senior Executive at LumaSoft",
+    "Height": "163 cm",
+    "Weight": "60 kg",
     "Awakened Date": "Year 1246",
     "Awakened By": "Luma Leo"
    },
@@ -535,8 +561,7 @@
     "Mirage",
     "Aurora",
     "Prism"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "Umbra",
@@ -547,6 +572,7 @@
    "team": "Eclipse",
    "guild": "Silver Veil (Originally);",
    "zodiac": "Aries",
+   "base": "Singapore",
    "noDisc": true,
    "info": {
     "Civilian Name": "Erebus Ang (洪)",
@@ -566,11 +592,12 @@
     "Team": "Eclipse",
     "Guild": "Silver Veil (Originally);",
     "Civilian Occupation": "Senior Executive at LumaSoft",
+    "Height": "190 cm",
+    "Weight": "77 kg",
     "Spirit Animal": "Wolf",
     "Awakened Date": "Year 1246",
     "Awakened By": "Luma Leo"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Moon",
@@ -580,6 +607,7 @@
    "role": "Attacker(Mage)",
    "team": "Celestials",
    "guild": "Silver Veil & [Tokyo Guild]",
+   "base": "Japan",
    "info": {
     "Civilian Name": "Serena Tsukino",
     "Age": "400; physically appears around 20",
@@ -595,12 +623,13 @@
     "Relationship": "Wife of Luma Sun",
     "Power Color": "Pink",
     "Team": "Celestials",
-    "Guild": "Silver Veil & [Tokyo Guild]"
+    "Guild": "Silver Veil & [Tokyo Guild]",
+    "Height": "150 cm",
+    "Weight": "50 kg"
    },
    "disciples": [
     "Blossom"
-   ],
-   "base": "Japan"
+   ]
   },
   {
    "name": "Yew",
@@ -671,7 +700,9 @@
     "Branch Theme": "Earth-Life-Verdant",
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Support (Healer)",
-    "Passed Tests": "Support (Healer, Researcher),"
+    "Passed Tests": "Support (Healer, Researcher),",
+    "Height": "160 cm",
+    "Weight": "57 kg"
    },
    "disciples": [
     "Flora",
@@ -685,6 +716,7 @@
    "mentor": "Luma Hydro",
    "role": "Attacker",
    "guild": "Silver Veil",
+   "base": "Singapore",
    "info": {
     "Age": "400",
     "Gender": "Female",
@@ -696,13 +728,14 @@
     "Relationship": "Trained together with Luma Mist, Luma Reflection",
     "Primary Role": "Attacker",
     "Passed Tests": "Attacker, Support",
-    "Guild": "Silver Veil"
+    "Guild": "Silver Veil",
+    "Height": "160 cm",
+    "Weight": "57 kg"
    },
    "disciples": [
     "Current",
     "Lotus"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "Summer",
@@ -712,6 +745,7 @@
    "role": "Attacker",
    "team": "Seasons",
    "guild": "Daybreak",
+   "base": "Singapore",
    "info": {
     "Gender": "Female",
     "Ethnicity": "Chinese",
@@ -722,9 +756,10 @@
     "Primary Role": "Attacker",
     "Team": "Seasons",
     "Guild": "Daybreak",
+    "Height": "157 cm",
+    "Weight": "58 kg",
     "Awakened Date": "2008"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Spring",
@@ -734,6 +769,7 @@
    "role": "Support (Healer)",
    "team": "Seasons",
    "guild": "Daybreak",
+   "base": "Singapore",
    "info": {
     "Gender": "Female",
     "Ethnicity": "Eurasian",
@@ -744,9 +780,10 @@
     "Primary Role": "Support (Healer)",
     "Team": "Seasons",
     "Guild": "Daybreak",
+    "Height": "160 cm",
+    "Weight": "58 kg",
     "Awakened Date": "2008"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Winter",
@@ -756,6 +793,7 @@
    "role": "Support (Barrier)",
    "team": "Seasons",
    "guild": "Daybreak",
+   "base": "Singapore",
    "info": {
     "Gender": "Female",
     "Ethnicity": "Malay",
@@ -766,9 +804,10 @@
     "Primary Role": "Support (Barrier)",
     "Team": "Seasons",
     "Guild": "Daybreak",
+    "Height": "160 cm",
+    "Weight": "58 kg",
     "Awakened Date": "2008"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Autumn",
@@ -778,6 +817,7 @@
    "role": "Strategist",
    "team": "Seasons",
    "guild": "Daybreak",
+   "base": "Singapore",
    "info": {
     "Gender": "Female",
     "Ethnicity": "Chinese",
@@ -789,9 +829,10 @@
     "Passed Tests": "Shadow, Strategist",
     "Team": "Seasons",
     "Guild": "Daybreak",
+    "Height": "162 cm",
+    "Weight": "56 kg",
     "Awakened Date": "2008"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Solace",
@@ -813,7 +854,9 @@
     "Primary Role": "Support (Guardian Physician)",
     "Passed Tests": "Support (Guardian Physician, Field Healer)",
     "Relationship": "Blossom’s allocated healer; also medically cleared to know Flora’s civilian identity due to the Flower Sisters’ frequent joint missions.",
-    "Civilian Occupation": "Doctor - Family Medicine / General Practitioner"
+    "Civilian Occupation": "Doctor - Family Medicine / General Practitioner",
+    "Height": "162 cm",
+    "Weight": "58 kg"
    }
   },
   {
@@ -836,7 +879,9 @@
     "Primary Role": "Support (Guardian Physician, Field Healer)",
     "Passed Tests": "Support (Guardian Physician, Field Healer)",
     "Relationship": "Flora's allocated healer; also medically cleared to know Blossom’s civilian identity due to the Flower Sisters’ frequent joint missions.",
-    "Civilian Occupation": "Diagnostic Physician"
+    "Civilian Occupation": "Diagnostic Physician",
+    "Height": "162 cm",
+    "Weight": "58 kg"
    }
   },
   {
@@ -859,7 +904,9 @@
     "Primary Role": "Support (Guardian Physician)",
     "Passed Tests": "Support (Guardian Physician, Field Healer)",
     "Relationship": "Verdant's allocated healer; also knows Blossom’s and Flora’s civilian identities - was their first temporary Healer",
-    "Civilian Occupation": "Physiotherapist"
+    "Civilian Occupation": "Physiotherapist",
+    "Height": "162 cm",
+    "Weight": "58 kg"
    },
    "disciples": [
     "Sage",
@@ -880,7 +927,9 @@
     "Original Element": "Water-Hydro",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Elements",
-    "Civilian Occupation": "Freelancer -"
+    "Civilian Occupation": "Freelancer -",
+    "Height": "180 cm",
+    "Weight": "73 kg"
    }
   },
   {
@@ -948,6 +997,7 @@
    "mentor": "Luma Lumen; Luma Umbra is unofficial.",
    "role": "Attacker(Mage)",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 30",
     "Gender": "Male",
@@ -959,9 +1009,10 @@
     "Passed Tests": "Attacker,",
     "Relationship": "Husband of Luma Moon",
     "Team": "Celestials",
-    "Civilian Occupation": "Freelancer -"
-   },
-   "base": "Japan"
+    "Civilian Occupation": "Freelancer -",
+    "Height": "190 cm",
+    "Weight": "85 kg"
+   }
   },
   {
    "name": "Mist",
@@ -970,6 +1021,7 @@
    "mentor": "Luma Hydro",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Civilian Name": "Ami",
     "Age": "400; physically appears around 20",
@@ -981,9 +1033,10 @@
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Attacker",
     "Team": "Celestials",
-    "Civilian Occupation": "Doctor"
-   },
-   "base": "Japan"
+    "Civilian Occupation": "Doctor",
+    "Height": "157 cm",
+    "Weight": "50 kg"
+   }
   },
   {
    "name": "Cinder",
@@ -992,6 +1045,7 @@
    "mentor": "Luma Sagittarius",
    "role": "Attacker",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1002,12 +1056,13 @@
     "Primary Role": "Attacker",
     "Passed Tests": "Attacker, Strategist",
     "Team": "Celestials",
-    "Civilian Occupation": "priestess/Shrine Maiden"
+    "Civilian Occupation": "priestess/Shrine Maiden",
+    "Height": "160 cm",
+    "Weight": "55 kg"
    },
    "disciples": [
     "Ash"
-   ],
-   "base": "Japan"
+   ]
   },
   {
    "name": "Meteor",
@@ -1016,6 +1071,7 @@
    "mentor": "Luma Soil",
    "role": "Attacker",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1026,9 +1082,10 @@
     "Primary Role": "Attacker",
     "Passed Tests": "Attacker, Strategist",
     "Team": "Celestials",
-    "Civilian Occupation": "Idol"
-   },
-   "base": "Japan"
+    "Civilian Occupation": "Idol",
+    "Height": "155 cm",
+    "Weight": "60 kg"
+   }
   },
   {
    "name": "Thunder",
@@ -1037,6 +1094,7 @@
    "mentor": "Luma Aero",
    "role": "Attacker",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1047,9 +1105,10 @@
     "Primary Role": "Attacker",
     "Passed Tests": "Attacker, Strategist",
     "Team": "Celestials",
-    "Civilian Occupation": "Owner of a Flower Shop & Cake Shop"
-   },
-   "base": "Japan"
+    "Civilian Occupation": "Owner of a Flower Shop & Cake Shop",
+    "Height": "170 cm",
+    "Weight": "65 kg"
+   }
   },
   {
    "name": "Selene",
@@ -1058,6 +1117,7 @@
    "mentor": "Luma Gleam",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1068,9 +1128,10 @@
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Support",
     "Team": "Celestials",
+    "Height": "145 cm",
+    "Weight": "45 kg",
     "Spirit Animal": "Black Cat"
-   },
-   "base": "Japan"
+   }
   },
   {
    "name": "Orion",
@@ -1079,6 +1140,7 @@
    "mentor": "Luma Aether",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Male",
@@ -1089,9 +1151,10 @@
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Support",
     "Team": "Celestials",
+    "Height": "160 cm",
+    "Weight": "60 kg",
     "Spirit Animal": "Cat"
-   },
-   "base": "Japan"
+   }
   },
   {
    "name": "Space",
@@ -1100,6 +1163,7 @@
    "mentor": "Luma Aether",
    "role": "Attacker",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Male",
@@ -1110,12 +1174,13 @@
     "Primary Role": "Attacker",
     "Passed Tests": "Attacker, Shadow",
     "Relationship": "Husband of Reflection",
-    "Team": "Celestials"
+    "Team": "Celestials",
+    "Height": "180 cm",
+    "Weight": "77 kg"
    },
    "disciples": [
     "Rift"
-   ],
-   "base": "Japan"
+   ]
   },
   {
    "name": "Reflection",
@@ -1124,6 +1189,7 @@
    "mentor": "Luma Hydro",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1133,12 +1199,13 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Support, Attacker",
-    "Team": "Celestials"
+    "Team": "Celestials",
+    "Height": "163 cm",
+    "Weight": "60 kg"
    },
    "disciples": [
     "Bubbles"
-   ],
-   "base": "Japan"
+   ]
   },
   {
    "name": "Cronus",
@@ -1147,6 +1214,7 @@
    "mentor": "Luma Hydro",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Male",
@@ -1156,12 +1224,13 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Support",
-    "Team": "Celestials"
+    "Team": "Celestials",
+    "Height": "185 cm",
+    "Weight": "81 kg"
    },
    "disciples": [
     "Lag"
-   ],
-   "base": "Japan"
+   ]
   },
   {
    "name": "Eclipsa",
@@ -1170,6 +1239,7 @@
    "mentor": "Luma Hydro",
    "role": "Strategist",
    "team": "Celestials",
+   "base": "Japan",
    "info": {
     "Age": "400; physically appears around 20",
     "Gender": "Female",
@@ -1179,9 +1249,10 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Strategist",
     "Passed Tests": "Strategist, Support",
-    "Team": "Celestials"
-   },
-   "base": "Japan"
+    "Team": "Celestials",
+    "Height": "140 cm",
+    "Weight": "45 kg"
+   }
   },
   {
    "name": "Star",
@@ -1191,6 +1262,7 @@
    "role": "Attacker(Mage)",
    "team": "Champions",
    "zodiac": "Libra",
+   "base": "United States (LA)",
    "info": {
     "Civilian Name": "Luxanna Crownguard",
     "Age": "500; physically appears around 20",
@@ -1204,9 +1276,10 @@
     "Passed Tests": "Attacker, Support (Barrier)",
     "Team": "Champions",
     "Civilian Occupation": "Freelancer -",
+    "Height": "160 cm",
+    "Weight": "50 kg",
     "Spirit Animal": "Black Cat"
-   },
-   "base": "United States (LA)"
+   }
   },
   {
    "name": "Muse",
@@ -1214,6 +1287,7 @@
    "rank": "Full-Fledged Guardian",
    "mentor": "Luma Harmony",
    "team": "Idols",
+   "base": "Korea",
    "info": {
     "Age": "300; physically appears around 20",
     "Gender": "Female",
@@ -1222,8 +1296,7 @@
     "Transformation Item": "Microphone",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Idols"
-   },
-   "base": "Korea"
+   }
   },
   {
    "name": "Rhythm",
@@ -1231,6 +1304,7 @@
    "rank": "Full-Fledged Guardian",
    "mentor": "Luma Harmony",
    "team": "Idols",
+   "base": "Korea",
    "info": {
     "Age": "50; physically appears around 21",
     "Gender": "Female",
@@ -1239,8 +1313,7 @@
     "Transformation Item": "Microphone",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Idols"
-   },
-   "base": "Korea"
+   }
   },
   {
    "name": "Melody",
@@ -1248,6 +1321,7 @@
    "rank": "Full-Fledged Guardian",
    "mentor": "Luma Harmony",
    "team": "Idols",
+   "base": "Korea",
    "info": {
     "Age": "50; physically appears around 20",
     "Gender": "Female",
@@ -1255,8 +1329,7 @@
     "Branch Theme": "Air-Resonance-Harmony-Melody",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Idols"
-   },
-   "base": "Korea"
+   }
   },
   {
    "name": "Beat",
@@ -1264,6 +1337,7 @@
    "rank": "Full-Fledged Guardian",
    "mentor": "Luma Harmony",
    "team": "Idols",
+   "base": "Korea",
    "info": {
     "Age": "50; physically appears around 20",
     "Gender": "Female",
@@ -1275,8 +1349,7 @@
    "disciples": [
     "Drum",
     "Bass"
-   ],
-   "base": "Korea"
+   ]
   },
   {
    "name": "Joy",
@@ -1285,14 +1358,14 @@
    "reason": "Branch left blank",
    "rank": "Full-Fledged Guardian",
    "team": "Emotions",
+   "base": "France",
    "info": {
     "Age": "500; physically appears around 20",
     "Gender": "Female",
     "Awakening Type": "Awakened",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Emotions"
-   },
-   "base": "France"
+   }
   },
   {
    "name": "Fear",
@@ -1301,14 +1374,14 @@
    "reason": "Branch left blank",
    "rank": "Full-Fledged Guardian",
    "team": "Emotions",
+   "base": "France",
    "info": {
     "Age": "500; physically appears around 20",
     "Gender": "Female",
     "Awakening Type": "Self-Awakened",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Emotions"
-   },
-   "base": "France"
+   }
   },
   {
    "name": "Rage",
@@ -1317,14 +1390,14 @@
    "reason": "Branch left blank",
    "rank": "Full-Fledged Guardian",
    "team": "Emotions",
+   "base": "France",
    "info": {
     "Age": "500; physically appears around 20",
     "Gender": "Female",
     "Awakening Type": "Emergency Awakened",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Emotions"
-   },
-   "base": "France"
+   }
   },
   {
    "name": "Sorrow",
@@ -1333,14 +1406,14 @@
    "reason": "Branch left blank",
    "rank": "Full-Fledged Guardian",
    "team": "Emotions",
+   "base": "France",
    "info": {
     "Age": "500; physically appears around 20",
     "Gender": "Female",
     "Awakening Type": "Self-Awakened",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Emotions"
-   },
-   "base": "France"
+   }
   },
   {
    "name": "Passion",
@@ -1349,6 +1422,7 @@
    "reason": "Branch left blank",
    "rank": "Full-Fledged Guardian",
    "team": "Emotions",
+   "base": "France",
    "info": {
     "Age": "500; physically appears around 20",
     "Gender": "Female",
@@ -1356,8 +1430,7 @@
     "Original Element": "Fire",
     "Guardian Rank": "Full-Fledged Guardian",
     "Team": "Emotions"
-   },
-   "base": "France"
+   }
   },
   {
    "name": "Firewall",
@@ -1367,6 +1440,7 @@
    "role": "Strategist",
    "guild": "Silver Veil (Registered Guild Leader)",
    "zodiac": "Leo",
+   "base": "Singapore",
    "info": {
     "Civilian Name": "Hafiz Rahman",
     "Age": "450; physically appears around 40",
@@ -1383,13 +1457,14 @@
     "Power Color": "Slate Grey",
     "Guild": "Silver Veil (Registered Guild Leader)",
     "Civilian Occupation": "Director of a private security consultancy in Woodlands (the Northern Guild Hall's public cover)",
+    "Height": "178 cm",
+    "Weight": "80 kg",
     "Spirit Animal": "Owl"
    },
    "disciples": [
     "Glitch",
     "Static"
-   ],
-   "base": "Singapore"
+   ]
   },
   {
    "name": "Current",
@@ -1398,6 +1473,7 @@
    "mentor": "Luma Tidal",
    "role": "Support",
    "guild": "Crucible",
+   "base": "Singapore",
    "info": {
     "Age": "35",
     "Gender": "Male",
@@ -1409,13 +1485,14 @@
     "Primary Role": "Support",
     "Passed Tests": "Support, Attacker",
     "Power Color": "Blue",
+    "Height": "170 cm",
+    "Weight": "65 kg",
     "Awakened Date": "2016",
     "Awakened By": "Luma Hydro",
     "Relationship": "Single;",
     "Guild": "Crucible",
     "Personality": "calm, practical, quick to understand tactical instructions"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Zephyr",
@@ -1424,6 +1501,7 @@
    "mentor": "Luma Aero",
    "role": "Shadow",
    "guild": "Five-Foot Way",
+   "base": "Singapore",
    "info": {
     "Age": "300",
     "Gender": "Female",
@@ -1433,9 +1511,10 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Shadow",
     "Passed Tests": "Shadow, Attacker",
+    "Height": "160 cm",
+    "Weight": "55 kg",
     "Guild": "Five-Foot Way"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Draft",
@@ -1444,6 +1523,7 @@
    "mentor": "Luma Zephyr",
    "role": "Shadow",
    "guild": "Five-Foot Way",
+   "base": "Singapore",
    "info": {
     "Age": "29",
     "Gender": "Female",
@@ -1454,11 +1534,12 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Shadow",
     "Passed Tests": "Shadow, Attacker",
+    "Height": "160 cm",
+    "Weight": "55 kg",
     "Awakened Date": "2017",
     "Guild": "Five-Foot Way",
     "Personality": "cheerful, street-smart and slightly mischievous. Much less formal than Blossom or Autumn."
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Lantern",
@@ -1467,6 +1548,7 @@
    "mentor": "Luma Lumen; Luma Umbra unofficially;",
    "role": "Shadow",
    "guild": "Five-Foot Way",
+   "base": "Singapore",
    "info": {
     "Age": "60; physically appears around 30",
     "Gender": "Male",
@@ -1476,10 +1558,11 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Shadow",
     "Passed Tests": "Support, Shadow",
+    "Height": "170 cm",
+    "Weight": "65 kg",
     "Awakened Date": "2017",
     "Guild": "Five-Foot Way"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Forge",
@@ -1488,6 +1571,7 @@
    "mentor": "Luma Metal",
    "role": "Attacker",
    "guild": "Crucible",
+   "base": "Singapore",
    "info": {
     "Age": "30",
     "Gender": "Male",
@@ -1497,10 +1581,11 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Attacker",
     "Passed Tests": "Support, Attacker",
+    "Height": "170 cm",
+    "Weight": "65 kg",
     "Awakened Date": "2017",
     "Guild": "Crucible"
-   },
-   "base": "Singapore"
+   }
   },
   {
    "name": "Life",
@@ -1818,7 +1903,9 @@
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Shadow",
     "Passed Tests": "Attacker, Shadow, Strategist",
-    "Relationship": "One of the First Guardians. But hidden from the public."
+    "Relationship": "One of the First Guardians. But hidden from the public.",
+    "Height": "190 cm",
+    "Weight": "93 kg"
    },
    "disciples": [
     "Yew"
@@ -1842,7 +1929,9 @@
     "Transformation Item": "Ring with a lion head?",
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Attacker (Close Range, Physical)",
-    "Passed Tests": "Attacker, Shadow"
+    "Passed Tests": "Attacker, Shadow",
+    "Height": "180 cm",
+    "Weight": "73 kg"
    },
    "disciples": [
     "Lumen",
@@ -1865,7 +1954,9 @@
     "Branch Theme": "Fire",
     "Guardian Rank": "Full-Fledged Guardian",
     "Primary Role": "Support (Healer)",
-    "Passed Tests": "Support,"
+    "Passed Tests": "Support,",
+    "Height": "180 cm",
+    "Weight": "73 kg"
    },
    "disciples": [
     "Vitalis"
@@ -2058,7 +2149,9 @@
     "Awakening Type": "Emergency Awakened",
     "Original Element": "Fire",
     "Branch Theme": "Fire-Vitalis-Halo",
-    "Guardian Rank": "Disciple"
+    "Guardian Rank": "Disciple",
+    "Height": "176 cm",
+    "Weight": "73 kg"
    }
   },
   {
@@ -2071,29 +2164,31 @@
     "Original Element": "Earth",
     "Branch Theme": "Earth-Life-Essence-Sage-",
     "Guardian Rank": "Disciple",
-    "Relationship": "Would be Coffea’s Personal Healer in the future"
+    "Relationship": "Would be Coffea’s Personal Healer in the future",
+    "Height": "176 cm",
+    "Weight": "73 kg"
    }
   },
   {
    "name": "Vacuum",
    "path": "Air-Aero-Pressure-Vacuum",
    "rank": "Former Full-Fledged Guardian",
-   "mentor": "Luma Ophiuchus",
-   "role": "Shadow / Attacker",
+   "mentor": "Luma Ophiuchus, Luma Pressure",
+   "role": "Attacker",
    "team": "-",
-   "zodiac": "Undecided (Air Element)",
+   "zodiac": "Gemini",
    "status": "deceased",
    "info": {
     "Civilian Name": "Undecided",
     "Gender": "Male",
-    "Zodiac": "Undecided (Air Element)",
+    "Zodiac": "Gemini",
     "Awakening Type": "Self-Awakened",
     "Original Element": "Air",
     "Branch Theme": "Air-Aero-Pressure-Vacuum",
     "Transformation Item": "Undecided",
     "Guardian Rank": "Former Full-Fledged Guardian",
-    "Primary Role": "Shadow / Attacker",
-    "Passed Tests": "Ophiuchus, Shadow, Attacker",
+    "Primary Role": "Attacker",
+    "Passed Tests": "Ophiuchus, Attacker",
     "Civilian Occupation": "Undecided"
    }
   }

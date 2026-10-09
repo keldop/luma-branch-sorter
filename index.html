@@ -157,8 +157,8 @@ dialog#full h4{margin:16px 0 2px;font-family:"Sora","Manrope",sans-serif;font-si
 const ELEMENTS=['Fire','Earth','Water','Air'];
 const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples','based at':'base','base':'base','stationed at':'base','status':'status'};
 const BLANK='Unknown';
-const FULL_LABELS=new Map(['Age','Gender','Zodiac','Ethnicity','Nickname','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Guardian Rank','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Team','Guild','Awakened Date','Awakened By','Full-Fledged Date','Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Date of Birth','Civilian Name','Height','Weight','Breast Size','Ding Dong Size','Blood Type'].map(x=>[x.toLowerCase(),x]));
-const DEFAULT_HIDDEN=['Date of Birth','Breast Size','Ding Dong Size','Height','Weight','Blood Type'];
+const FULL_LABELS=new Map(['Age','Gender','Sexuality','Home Country','Hometown','Languages','Education','Appearance','Signature Ability','Weapon','Strengths','Weaknesses','Fear','Likes','Dislikes','Hobbies','MBTI','Catchphrase','Rivals','Theme Song','Zodiac','Ethnicity','Nickname','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Guardian Rank','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Team','Guild','Awakened Date','Awakened By','Full-Fledged Date','Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Date of Birth','Civilian Name','Height','Weight','Breast Size','Ding Dong Size','Blood Type'].map(x=>[x.toLowerCase(),x]));
+const DEFAULT_HIDDEN=['Date of Birth','Breast Size','Ding Dong Size'];
 let HIDDEN=new Set(DEFAULT_HIDDEN.map(x=>x.toLowerCase()));
 function setHidden(list){HIDDEN=new Set((list||[]).map(x=>String(x).toLowerCase()));}
 const FALLBACK_CONFIG={hiddenFields:DEFAULT_HIDDEN,guardians:[],overrides:['Earth-Soil-Verdant => Earth-Life-Verdant'],zodiacRoots:{},branches:[]};
@@ -167,7 +167,7 @@ function capEl(s){if(!s)return null;return ELEMENTS.find(x=>x.toLowerCase()===s.
 function segs(s){return s.split('-').map(x=>x.trim()).filter(Boolean);}
 function stripLuma(n){n=(n||'').replace(/^luma\s*/i,'').trim();return n||'(unnamed)';}
 function parseEntries(text){
-  const recs=[];let cur=null,pendCiv='';
+  const recs=[];let cur=null,pendCiv='',pendNick='',pendOpen=false;
   for(const raw of text.split(/\r?\n/)){
     const l=norm(raw).replace(/^[-\u2022]\s+/,'');
     const m=l.match(/^([A-Za-z][A-Za-z ]{2,28}?)\s*:\s*(.*)$/);
@@ -176,8 +176,9 @@ function parseEntries(text){
     const key=LABELS[lc],canon=FULL_LABELS.get(lc==='awakened by'?'awakened by':lc);
     if(!key&&!canon)continue;
     const val=m[2].trim();
-    if(canon==='Civilian Name'){pendCiv=(val&&!/^-+$/.test(val))?val.slice(0,200):'';continue;}
-    if(key==='name'){cur={names:[val],f:{},info:{}};if(pendCiv)cur.info['Civilian Name']=pendCiv;pendCiv='';recs.push(cur);continue;}
+    if(canon==='Civilian Name'){pendCiv=(val&&!/^-+$/.test(val))?val.slice(0,200):'';pendNick='';pendOpen=true;continue;}
+    if(canon==='Nickname'&&pendOpen){pendNick=(val&&!/^-+$/.test(val))?val.slice(0,700):'';continue;}
+    if(key==='name'){cur={names:[val],f:{},info:{}};if(pendCiv)cur.info['Civilian Name']=pendCiv;if(pendNick)cur.info['Nickname']=pendNick;pendCiv='';pendNick='';pendOpen=false;recs.push(cur);continue;}
     if(key==='evolved'){if(cur)cur.names.push(val);continue;}
     if(key&&cur&&!(key in cur.f))cur.f[key]=val;
     if(canon&&cur&&val&&!/^-+$/.test(val)&&!HIDDEN.has(canon.toLowerCase())&&!(canon in cur.info))cur.info[canon]=val.slice(0,700);
@@ -537,7 +538,7 @@ function dl(rows){return '<dl class="std">'+rows.map(r=>'<dt>'+r[0]+'</dt><dd'+(
 function stdCard(c,hasG,k,i){
   const badge=c.status?'<span class="badge st-'+c.status+'">'+(c.status==='deceased'?'\u2020 Deceased':'R Retired')+'</span>':'';
   return '<div class="stdcard"><div class="sh"><h3>'+esc(c.name)+'</h3>'+badge+'</div>'+
-    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Rank',c.rank||BLANK],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
+    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Rank',c.rank||BLANK],['Role',c.role||BLANK],['Stationed at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
     (c.name.includes('(')?'<p class="same">'+esc(c.name.replace(/^.*\((.*)\)$/,'$1'))+'</p>':'')+
     (hasG?'<button type="button" class="btn full" data-k="'+esc(k)+'" data-i="'+i+'">View full info</button>':'<p class="hint">No profile yet.</p>')+'</div>';
 }
@@ -547,15 +548,15 @@ function detailHtml(d,k){
   const note=d.none&&!d.zodiac?(d.inferred?'Named as a disciple, but no profile in the doc yet.':'This branch is known, but no imported profile belongs to it yet.'):'';
   return (d.cards||[]).map((c,i)=>stdCard(c,!!(d.g&&d.g[i]),k,i)).join('')+(note?'<p class="hint">'+esc(note)+'</p>':'');
 }
-const OPTIONAL=new Set(['Nickname','Likely Primary Role','Possible Future Role','Artefact','Artefact (Planned)','Civilian Occupation (To be)','Quotes','Close bonds']);
-const SECTIONS=[['Identity',['Civilian Name','Age','Gender','Zodiac','Ethnicity','Nickname']],['Guardian',['Guardian Rank','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Awakened Date','Awakened By','Full-Fledged Date']],['Affiliation',['Team','Guild']],['Personal',['Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Nickname']]];
+const OPTIONAL=new Set(['Nickname','Sexuality','Home Country','Hometown','Languages','Education','Appearance','Signature Ability','Weapon','Strengths','Weaknesses','Fear','Likes','Dislikes','Hobbies','MBTI','Catchphrase','Rivals','Theme Song','Likely Primary Role','Possible Future Role','Artefact','Artefact (Planned)','Civilian Occupation (To be)','Quotes','Close bonds']);
+const SECTIONS=[['Identity',['Civilian Name','Age','Gender','Sexuality','Zodiac','Ethnicity','Nickname','Height','Weight','Blood Type','Home Country','Hometown','Languages','Education','Appearance']],['Guardian',['Guardian Rank','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Signature Ability','Weapon','Strengths','Weaknesses','Fear','Power Color','Artefact','Artefact (Planned)','Awakened Date','Awakened By','Full-Fledged Date']],['Affiliation',['Team','Guild']],['Personal',['Relationship','Family','Close bonds','Rivals','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Likes','Dislikes','Hobbies','MBTI','Catchphrase','Theme Song','Quotes','Nickname']]];
 function openFull(k,i){
   const d=S.details[k],g=d&&d.g&&d.g[i],c=d&&d.cards&&d.cards[i];
   if(!g||!c)return;
   const info=g.info||{},used=new Set();
   const sec=(t,rows)=>'<section><h4>'+t+'</h4>'+dl(rows)+'</section>';
   let h='<div class="fh"><h2>'+esc(g.name)+'</h2>'+(c.status?'<span class="badge st-'+c.status+'">'+(c.status==='deceased'?'\u2020 Deceased':'R Retired')+'</span>':'')+'</div>';
-  h+=sec('Overview',[['Branch',c.branch],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples],['Status',c.status?c.status[0].toUpperCase()+c.status.slice(1):'Active']]);
+  h+=sec('Overview',[['Branch',c.branch],['Stationed at',c.base],['Mentor',c.mentor],['Disciples',c.disciples],['Status',c.status?c.status[0].toUpperCase()+c.status.slice(1):'Active']]);
   SECTIONS.forEach(([t,labels])=>{
     const rows=labels.filter(l=>!used.has(l)&&(!OPTIONAL.has(l)||info[l])).map(l=>{used.add(l);return[l,info[l]||BLANK];});
     if(rows.length)h+=sec(t,rows);
