@@ -43,3 +43,10 @@ then open http://localhost:8000 . On GitHub Pages no extra step is needed.
 ## Privacy
 
 `branches.json` holds Guardian names, branches, ranks, mentors, roles, teams and guilds. It does not hold civilian names. A public GitHub Pages repo makes this file public, so check it before you commit.
+
+## Colours, status and profile cards
+
+- **Zodiac colours:** a Zodiac root and its first-generation disciples share one colour (Leo, Lumen and Umbra). A branch gets its Zodiac from its own Mentor line, or from a Zodiac's Disciple line. Edit the `z-<zodiac>` rules in `theme.css`. From the 2nd generation onward each generation fades lighter (`gen-2` to `gen-5`, deeper ones reuse `gen-5`); edit the `.z-<zodiac>.gen-N` rules to change a step.
+- **Retired and deceased:** these have their own colours (`st-retired`, `st-deceased` in `theme.css`) and a small badge (R or a dagger). Set a status by writing `(retired)` or `(deceased)` after a name in a Mentor or Disciple line, adding a `Status:` line to the profile, or adding `"status"` to the Guardian in `branches.json`.
+- **Profile card:** every box opens the same card: Guardian Name, Branch, Based at, Mentor, Disciples. Blank values show `Unknown` (change `BLANK` near the top of the script in `index.html` to use `?`). "Based at" uses a `Based at:` line if the doc has one, otherwise the Guild.
+- **View full info:** opens every stored field for that Guardian. Fields listed in `hiddenFields` in `branches.json` (civilian name, date of birth, body measurements, height, weight, blood type) are never read from the doc or saved, so they stay out of a public repo.
