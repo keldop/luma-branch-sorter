@@ -158,7 +158,7 @@ const ELEMENTS=['Fire','Earth','Water','Air'];
 const LABELS={'guardian name':'name','original guardian name':'name','evolved guardian name':'evolved','original element':'origEl','inherited element':'inhEl','branch theme':'branch','guardian rank':'rank','mentor':'mentor','primary role':'role','team':'team','guild':'guild','zodiac':'zodiac','disciple':'disciples','disciples':'disciples','based at':'base','base':'base','stationed at':'base','status':'status'};
 const BLANK='Unknown';
 const FULL_LABELS=new Map(['Age','Gender','Zodiac','Ethnicity','Nickname','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Guardian Rank','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Team','Guild','Awakened Date','Awakened By','Full-Fledged Date','Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Date of Birth','Civilian Name','Height','Weight','Breast Size','Ding Dong Size','Blood Type'].map(x=>[x.toLowerCase(),x]));
-const DEFAULT_HIDDEN=['Civilian Name','Date of Birth','Breast Size','Ding Dong Size','Height','Weight','Blood Type'];
+const DEFAULT_HIDDEN=['Date of Birth','Breast Size','Ding Dong Size','Height','Weight','Blood Type'];
 let HIDDEN=new Set(DEFAULT_HIDDEN.map(x=>x.toLowerCase()));
 function setHidden(list){HIDDEN=new Set((list||[]).map(x=>String(x).toLowerCase()));}
 const FALLBACK_CONFIG={hiddenFields:DEFAULT_HIDDEN,guardians:[],overrides:['Earth-Soil-Verdant => Earth-Life-Verdant'],zodiacRoots:{},branches:[]};
@@ -421,7 +421,7 @@ function renderTree(root,el){
     const dis=g.disciples&&g.disciples.length?g.disciples.join(', '):(n&&n.kids.length?n.kids.map(k=>k.label).join(', '):'');
     return{name:g.name+(g.sameAs?(g.form==='evolved'?' (evolved form of '+g.sameAs+')':' (evolves into '+g.sameAs+')'):''),
       branch:zroot?el+' (Zodiac root)':(g.path&&g.path.length?g.path.join(' \u203a '):unk('')),
-      role:unk(g.role),base:unk(g.base||g.guild),mentor:unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:unk(dis),status:g.status||''};
+      civ:unk(g.info&&g.info['Civilian Name']),role:unk(g.role),base:unk(g.base||g.guild),mentor:unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:unk(dis),status:g.status||''};
   }
   const zodOf=n=>{const top=n.d>0?root.kids[n.sh]:null;return top&&root.zmap?root.zmap.get(top.label.toLowerCase()):null;};
   function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
@@ -438,7 +438,7 @@ function renderTree(root,el){
       else{
         const pm=n.par&&n.par.d>0?(n.par.g.length?n.par.g.map(q=>q.name).join(' / '):n.par.label):'';
         details[key]={title:n.label,sub:n.path.join(' > '),none:true,inferred:n.inferred,by:descGuardians(n),
-          cards:[{name:n.label,branch:n.path.join(' \u203a '),role:BLANK,base:BLANK,mentor:unk(pm),disciples:unk(n.kids.map(k=>k.label).join(', ')),status:''}]};
+          cards:[{name:n.label,branch:n.path.join(' \u203a '),civ:BLANK,role:BLANK,base:BLANK,mentor:unk(pm),disciples:unk(n.kids.map(k=>k.label).join(', ')),status:''}]};
       }
       nodes+=box(x,y,n.label,elc+' shade-'+(nb<2?0:Math.round(n.sh*MAXSLOT/(nb-1)))+' b-'+slug(top.label)+(zn?' z-'+slug(zn):'')+(zn&&n.d>=2?' gen-'+Math.min(n.d,5):'')+(st?' st-'+st:'')+(has?'':' gray'),key,n.label+(has?'':' (no profile yet)')+(st?' ('+st+')':''),st);
     }
@@ -455,7 +455,7 @@ function renderTree(root,el){
     zs.forEach(z=>{
       const key=el+':'+(id++);
       const zst=z.g?(z.g[0].status||''):'';
-      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',role:BLANK,base:BLANK,mentor:BLANK,disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
+      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',civ:BLANK,role:BLANK,base:BLANK,mentor:BLANK,disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
       nodes+=box(PAD,Y(z.row),z.name,'root '+elc+' z-'+slug(z.name)+(zst?' st-'+zst:'')+(z.none?' gray':''),key,z.name+' (Zodiac root)'+(z.none?' (no profile yet)':'')+(zst?' ('+zst+')':''),zst);
     });
   }
@@ -535,7 +535,7 @@ function dl(rows){return '<dl class="std">'+rows.map(r=>'<dt>'+r[0]+'</dt><dd'+(
 function stdCard(c,hasG,k,i){
   const badge=c.status?'<span class="badge st-'+c.status+'">'+(c.status==='deceased'?'\u2020 Deceased':'R Retired')+'</span>':'';
   return '<div class="stdcard"><div class="sh"><h3>'+esc(c.name)+'</h3>'+badge+'</div>'+
-    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
+    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Civilian name',c.civ||BLANK],['Branch',c.branch],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
     (c.name.includes('(')?'<p class="same">'+esc(c.name.replace(/^.*\((.*)\)$/,'$1'))+'</p>':'')+
     (hasG?'<button type="button" class="btn full" data-k="'+esc(k)+'" data-i="'+i+'">View full info</button>':'<p class="hint">No profile yet.</p>')+'</div>';
 }
@@ -546,7 +546,7 @@ function detailHtml(d,k){
   return (d.cards||[]).map((c,i)=>stdCard(c,!!(d.g&&d.g[i]),k,i)).join('')+(note?'<p class="hint">'+esc(note)+'</p>':'');
 }
 const OPTIONAL=new Set(['Nickname','Likely Primary Role','Possible Future Role','Artefact','Artefact (Planned)','Civilian Occupation (To be)','Quotes','Close bonds']);
-const SECTIONS=[['Identity',['Age','Gender','Zodiac','Ethnicity','Nickname']],['Guardian',['Guardian Rank','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Awakened Date','Awakened By','Full-Fledged Date']],['Affiliation',['Team','Guild']],['Personal',['Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Nickname']]];
+const SECTIONS=[['Identity',['Civilian Name','Age','Gender','Zodiac','Ethnicity','Nickname']],['Guardian',['Guardian Rank','Awakening Type','Original Element','Inherited Element','Branch Theme','Transformation Item','Primary Role','Likely Primary Role','Possible Future Role','Passed Tests','Power Color','Artefact','Artefact (Planned)','Awakened Date','Awakened By','Full-Fledged Date']],['Affiliation',['Team','Guild']],['Personal',['Relationship','Family','Close bonds','Personality','Spirit Animal','Civilian Occupation','Civilian Occupation (To be)','Quotes','Nickname']]];
 function openFull(k,i){
   const d=S.details[k],g=d&&d.g&&d.g[i],c=d&&d.cards&&d.cards[i];
   if(!g||!c)return;
@@ -607,7 +607,9 @@ function renderPanel(){
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;renderTabs();renderPanel();});
 function pick(g){
   if(!g)return;
+  const was=g.classList.contains('sel');
   document.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
+  if(was){const d0=$('detail');if(d0)d0.innerHTML=detailHtml(null);return;}
   g.classList.add('sel');
   const d=$('detail');if(d)d.innerHTML=detailHtml(S.details[g.dataset.k],g.dataset.k);
 }
