@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Luma Guardian branch sorter</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Sora:wght@500;600&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 :root{
   --bg:#F4F3F9;--surface:#FFFFFF;--surface2:#ECEAF5;--line:#D9D6E8;--ink:#1E1B2E;--muted:#625E7A;
@@ -61,6 +60,7 @@ textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line
 details.adv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
 details.adv summary{cursor:pointer;font-weight:600;font-size:14px}
 details.adv p{margin:8px 0}
+.toggles{display:flex;flex-wrap:wrap;gap:6px 22px;margin:2px 0 10px}.toggles .chk{margin-top:0}
 .chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}
 .chk input{margin-top:4px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 14px}
@@ -133,52 +133,22 @@ dialog#full h4{margin:16px 0 2px;font-family:"Sora","Manrope",sans-serif;font-si
 .note{color:var(--muted);font-size:14px;margin:0 0 12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme.css" id="themecss"><script>document.getElementById("themecss").href="theme.css?v="+Date.now();</script>
 </head>
 <body>
 <dialog id="full" aria-label="Full profile"></dialog>
 <div class="wrap">
   <header class="top">
     <h1>Luma Guardian branch sorter</h1>
-    <p>Import your Guardian doc and every profile is sorted into its element tree by its Branch Theme.</p>
+    <p>Pick an element tab to see its branches. Click any box for a quick profile, then View full info.</p>
   </header>
 
-  <section class="card import" aria-label="Import">
-    <div>
-      <h2>Import the doc</h2>
-      <ol class="steps">
-        <li>In Google Docs: File, then Download.</li>
-        <li>Choose Microsoft Word (.docx), Markdown (.md) or Plain text (.txt).</li>
-        <li>Upload one file, or select several at once. Use Add more files to keep what is already loaded.</li>
-      </ol>
-      <div class="row">
-        <label class="btn primary" for="file">Choose files</label>
-        <input id="file" type="file" multiple accept=".docx,.md,.markdown,.txt,.html,.htm">
-        <label class="btn" for="fileAdd">Add more files</label>
-        <input id="fileAdd" type="file" multiple accept=".docx,.md,.markdown,.txt,.html,.htm">
-      </div>
-      <div class="status" id="status" role="status" aria-live="polite"></div>
-      <ul class="files" id="files" aria-label="Imported files"></ul>
-      <div class="row" style="margin-top:12px"><button class="btn" id="export" type="button">Download branches.json</button></div>
-      <details class="adv" id="advanced">
-        <summary>Branch overrides and options</summary>
-        <p class="note" id="cfgnote"></p>
-        <p class="note">Extra overrides for this browser only, one per line: <code>from-path =&gt; to-path</code>. Rules in branches.json are always applied too. Lines starting with # are ignored.</p>
-        <textarea id="overrides" rows="5" spellcheck="false" aria-label="Extra branch overrides"></textarea>
-        <label class="chk"><input type="checkbox" id="jsononly"> <span>Show branches.json only (ignore imported files).</span></label>
-        <label class="chk"><input type="checkbox" id="infer"> <span>Also show disciples that are named in a Disciple line but have no profile yet (gray boxes).</span></label>
-        <div class="row" style="margin-top:10px"><button class="btn" id="resort" type="button">Re-sort</button></div>
-      </details>
-    </div>
-    <div>
-      <h2>Or paste the text</h2>
-      <p>Select all in the doc, copy, and paste here.</p>
-      <textarea id="paste" placeholder="Guardian Name: Luma Blossom&#10;Original Element: Fire&#10;Branch Theme: Fire-Lumen-Moon-Blossom&#10;..." aria-label="Pasted doc text"></textarea>
-      <div class="row" style="margin-top:10px"><button class="btn primary" id="sort" type="button">Sort Guardians</button><button class="btn" id="clear" type="button">Clear</button></div>
-    </div>
-  </section>
 
   <div class="tabs" role="tablist" id="tabs" aria-label="Elements"></div>
+  <div class="toggles" role="group" aria-label="Display options">
+    <label class="chk"><input type="checkbox" id="infer" checked> <span>Show disciples without a profile (gray boxes)</span></label>
+    <label class="chk"><input type="checkbox" id="hidegone"> <span>Hide deceased / retired Guardians</span></label>
+  </div>
   <section id="panel" aria-live="polite"></section>
 </div>
 
@@ -514,24 +484,29 @@ let CFG=FALLBACK_CONFIG;
 let S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:'All',details:{}};
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-function setStatus(t,err){const s=$('status');s.textContent=t;s.className='status'+(err?' err':'');}
+function setStatus(t,err){const s=$('status');if(!s)return;s.textContent=t;s.className='status'+(err?' err':'');}
 function hasCfgBranches(){return !!(CFG.branches&&CFG.branches.length)||!!(CFG.guardians&&CFG.guardians.length)||!!Object.values(CFG.zodiacRoots||{}).some(a=>a&&a.length);}
 function sortAll(silent){
   setHidden(CFG.hiddenFields);
-  const imported=$('jsononly').checked?[]:parseAll(S.files);
+  const imported=[];
   const entries=mergeEntries(entriesFromConfig(CFG.guardians),imported);
   applyStatus(entries);
   if(!entries.length&&!hasCfgBranches()){setStatus(S.files.length?'No Guardian profiles found. Each profile needs a "Guardian Name:" line.':'',!!S.files.length);S.roots=null;renderTabs();renderPanel();return false;}
-  const rules=parseOverrides((CFG.overrides||[]).join('\n')+'\n'+$('overrides').value);
+  const rules=parseOverrides((CFG.overrides||[]).join('\n'));
   applyOverrides(entries,rules);
   const t=buildTrees(entries,{infer:$('infer').checked,branches:CFG.branches,zodiac:CFG.zodiacRoots});
+  if($('hidegone').checked){
+    const gone=q=>q.status==='deceased'||q.status==='retired';
+    const prune=n=>{n.kids=n.kids.filter(k=>{prune(k);return !(k.g.length&&k.g.every(gone)&&!k.kids.length);});};
+    ELEMENTS.forEach(el=>{prune(t.roots[el]);t.roots[el].z=t.roots[el].z.filter(z=>!gone(z));});
+  }
   S.multiSrc=new Set(entries.map(e=>e.source)).size>1;S.entries=entries;S.roots=t.roots;S.noBranch=t.noBranch;S.warnings=collectWarnings(entries,t.roots,t.noBranch);
   if(!silent)setStatus(imported.length?'Sorted '+entries.length+' Guardians: branches.json plus '+S.files.length+' imported file'+(S.files.length===1?'':'s')+'.':entries.length?'Showing '+entries.length+' Guardians from branches.json.':'Showing the branches in branches.json. Import your doc to light them up.');
-  lsSet('luma.files.v1',JSON.stringify(S.files));lsSet('luma.over.v2',$('overrides').value);lsSet('luma.infer.v1',$('infer').checked?'1':'0');lsSet('luma.jsononly.v1',$('jsononly').checked?'1':'0');
+  lsSet('luma.infer.v1',$('infer').checked?'1':'0');lsSet('luma.hidegone.v1',$('hidegone').checked?'1':'0');
   renderTabs();renderPanel();return true;
 }
 async function loadConfig(){
-  const note=$('cfgnote');
+  const note={};
   try{
     const r=await fetch('branches.json',{cache:'no-cache'});
     if(!r.ok)throw new Error(r.status);
@@ -543,10 +518,6 @@ async function loadConfig(){
     note.textContent='branches.json was not found, so built-in defaults are used. Open the page from your GitHub site (or a local web server) to load it.';
   }
 }
-function renderFiles(){
-  $('files').innerHTML=S.files.map((f,i)=>'<li><span>'+esc(f.name)+'<small>'+(f.count===undefined?'':f.count+' profiles')+'</small></span><button type="button" data-rm="'+i+'" aria-label="Remove '+esc(f.name)+'">&times;</button></li>').join('');
-}
-function countFor(f){return parseEntries(f.text).length;}
 function renderTabs(){
   const names=['All',...ELEMENTS,'No branch yet','Check'];
   $('tabs').innerHTML=names.map(n=>{
@@ -589,7 +560,7 @@ function openFull(k,i){
   });
   const rest=Object.keys(info).filter(l=>!used.has(l));
   if(rest.length)h+=sec('Other',rest.map(l=>[l,info[l]]));
-  if(!Object.keys(info).length)h+='<p class="hint">No extra profile fields are stored for this Guardian yet. Import the doc and download branches.json to add them.</p>';
+  if(!Object.keys(info).length)h+='<p class="hint">No extra profile fields are stored for this Guardian yet.</p>';
   const dlg=$('full');dlg.innerHTML=h+'<form method="dialog" class="fclose"><button class="btn primary">Close</button></form>';
   if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
 }
@@ -627,57 +598,12 @@ function renderPanel(){
   }else if(t==='No branch yet'){
     const groups=[...ELEMENTS,'No element set'].map(g=>({g,items:S.noBranch.filter(e=>(e.element||'No element set')===g)})).filter(x=>x.items.length);
     if(!groups.length){p.innerHTML='<div class="card empty">Every Guardian has a branch.</div>';return;}
-    p.innerHTML='<p class="note">These profiles have no usable Branch Theme yet. Add one in the doc and re-import.</p><div class="groups">'+groups.map(x=>'<div class="group"><h3 style="--c:'+(COLORS[x.g]||'var(--none)')+'"><span class="dot"></span>'+x.g+'</h3>'+x.items.map(e=>'<div class="chip"><span>'+esc(e.name)+'</span><small>'+esc(e.reason)+'</small></div>').join('')+'</div>').join('')+'</div>';
+    p.innerHTML='<p class="note">These profiles have no usable Branch Theme yet. Add one in the doc, then ask Claude to update branches.json.</p><div class="groups">'+groups.map(x=>'<div class="group"><h3 style="--c:'+(COLORS[x.g]||'var(--none)')+'"><span class="dot"></span>'+x.g+'</h3>'+x.items.map(e=>'<div class="chip"><span>'+esc(e.name)+'</span><small>'+esc(e.reason)+'</small></div>').join('')+'</div>').join('')+'</div>';
   }else{
     p.innerHTML=S.warnings.length?'<p class="note">These are places where the doc disagrees with itself. Nothing is changed automatically beyond your overrides.</p><ul class="warns">'+S.warnings.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>':'<div class="card empty">No conflicts found.</div>';
   }
 }
-function htmlToText(h){
-  const d=new DOMParser().parseFromString(h.replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|li|h[1-6]|tr)>/gi,'\n$&'),'text/html');
-  return d.body?d.body.textContent:'';
-}
-async function readFile(f){
-  const n=f.name.toLowerCase();
-  if(n.endsWith('.docx')){
-    if(typeof mammoth==='undefined')throw new Error('The .docx reader did not load. Export as Markdown or Plain text instead, or paste the text.');
-    const r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});return r.value;
-  }
-  const t=await f.text();
-  return /\.html?$/.test(n)?htmlToText(t):t;
-}
-async function addFiles(list,replace){
-  const fs=[...list];if(!fs.length)return;
-  setStatus('Reading '+fs.length+' file'+(fs.length===1?'':'s')+'...');
-  const got=[],failed=[];
-  for(const f of fs){
-    try{const text=await readFile(f);const o={name:f.name,text};o.count=countFor(o);got.push(o);}
-    catch(err){failed.push(f.name+': '+(err.message||'could not be read'));}
-  }
-  const base=replace?[]:S.files.filter(x=>!got.some(g=>g.name===x.name));
-  S.files=base.concat(got);
-  renderFiles();
-  if(!sortAll(false)&&failed.length)setStatus(failed.join(' | '),true);
-  else if(failed.length)setStatus('Sorted, but some files failed: '+failed.join(' | '),true);
-}
-$('file').addEventListener('change',e=>{addFiles(e.target.files,true);e.target.value='';});
-$('fileAdd').addEventListener('change',e=>{addFiles(e.target.files,false);e.target.value='';});
-$('files').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;S.files.splice(+b.dataset.rm,1);renderFiles();sortAll(true);setStatus(S.files.length?'Removed. '+S.files.length+' file'+(S.files.length===1?'':'s')+' left.':'');});
-$('sort').addEventListener('click',()=>{
-  const t=$('paste').value;
-  if(!t.trim()){setStatus('Paste the doc text first.',true);return;}
-  const o={name:'Pasted text',text:t};o.count=countFor(o);
-  S.files=S.files.filter(x=>x.name!=='Pasted text').concat(o);
-  renderFiles();sortAll(false);
-});
-$('clear').addEventListener('click',()=>{$('paste').value='';S={files:[],entries:[],roots:null,noBranch:[],warnings:[],tab:S.tab,details:{}};lsSet('luma.files.v1','');lsSet('luma.doc.v1','');renderFiles();if(hasCfgBranches())sortAll(false);else{setStatus('');renderTabs();renderPanel();}});
-$('resort').addEventListener('click',()=>sortAll(false));
-$('export').addEventListener('click',()=>{
-  if(!S.roots){setStatus('Nothing to download yet.',true);return;}
-  const b=new Blob([exportConfig(S.entries,S.roots,CFG)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='branches.json';document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  setStatus('Downloaded branches.json. Replace the file in your GitHub repo to keep these Guardians.');
-});
+['infer','hidegone'].forEach(id=>$(id).addEventListener('change',()=>sortAll(true)));
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.tab;renderTabs();renderPanel();});
 function pick(g){
   if(!g)return;
@@ -689,19 +615,12 @@ $('panel').addEventListener('click',e=>{const f=e.target.closest('.full');if(f){
 $('full').addEventListener('click',e=>{if(e.target===$('full'))$('full').close();});
 $('panel').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest&&e.target.closest('.node');if(g){e.preventDefault();pick(g);}}});
 (async function init(){
-  $('overrides').value=lsGet('luma.over.v2')||'';
-  $('infer').checked=lsGet('luma.infer.v1')==='1';
-  $('jsononly').checked=lsGet('luma.jsononly.v1')==='1';
+  $('hidegone').checked=lsGet('luma.hidegone.v1')==='1';
+  {const v=lsGet('luma.infer.v1');$('infer').checked=v===null||v===undefined||v===''?true:v==='1';}
   renderTabs();renderPanel();
   await loadConfig();
-  let saved=null;
-  try{saved=JSON.parse(lsGet('luma.files.v1')||'null');}catch(e){}
-  if(!saved||!saved.length){const old=lsGet('luma.doc.v1');if(old)saved=[{name:'Previous import',text:old}];}
-  if(saved&&saved.length){
-    S.files=saved.map(f=>({name:f.name,text:f.text,count:countFor(f)}));
-    renderFiles();
-    if(sortAll(true))setStatus('Restored your last import. Choose files again to refresh.');
-  }else if(hasCfgBranches()){sortAll(false);}
+  if(!hasCfgBranches()){$('panel').innerHTML='<div class="card empty">branches.json was not found. Open this page from your GitHub site (or a local web server) so it can load branches.json.</div>';return;}
+  sortAll(true);
 })();
 </script>
 </body>
