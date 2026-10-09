@@ -167,7 +167,7 @@ function capEl(s){if(!s)return null;return ELEMENTS.find(x=>x.toLowerCase()===s.
 function segs(s){return s.split('-').map(x=>x.trim()).filter(Boolean);}
 function stripLuma(n){n=(n||'').replace(/^luma\s*/i,'').trim();return n||'(unnamed)';}
 function parseEntries(text){
-  const recs=[];let cur=null;
+  const recs=[];let cur=null,pendCiv='';
   for(const raw of text.split(/\r?\n/)){
     const l=norm(raw).replace(/^[-\u2022]\s+/,'');
     const m=l.match(/^([A-Za-z][A-Za-z ]{2,28}?)\s*:\s*(.*)$/);
@@ -176,7 +176,8 @@ function parseEntries(text){
     const key=LABELS[lc],canon=FULL_LABELS.get(lc==='awakened by'?'awakened by':lc);
     if(!key&&!canon)continue;
     const val=m[2].trim();
-    if(key==='name'){cur={names:[val],f:{},info:{}};recs.push(cur);continue;}
+    if(canon==='Civilian Name'){pendCiv=(val&&!/^-+$/.test(val))?val.slice(0,200):'';continue;}
+    if(key==='name'){cur={names:[val],f:{},info:{}};if(pendCiv)cur.info['Civilian Name']=pendCiv;pendCiv='';recs.push(cur);continue;}
     if(key==='evolved'){if(cur)cur.names.push(val);continue;}
     if(key&&cur&&!(key in cur.f))cur.f[key]=val;
     if(canon&&cur&&val&&!/^-+$/.test(val)&&!HIDDEN.has(canon.toLowerCase())&&!(canon in cur.info))cur.info[canon]=val.slice(0,700);
@@ -210,9 +211,10 @@ function parseEntries(text){
       if(seen.has(key)&&name!=='(unnamed)')return;
       seen.add(key);
       const dis=[];
+      const noDisc=!!(r.f.disciples&&/\b(no|none|n\/a|nil|not)\b/i.test(r.f.disciples)&&!/Luma\s+[A-Za-z]/.test(r.f.disciples));
       if(r.f.disciples){for(const t of r.f.disciples.split(/[,;]/)){const mm=t.trim().match(/^Luma\s+([A-Za-z]+)$/);if(mm)dis.push(mm[1]);}}
       out.push({name,names:r.names.map(stripLuma),path,kind,element,origEl,reason:kind==='none'?(reason||'Branch left blank'):'',
-        rank:r.f.rank||'',sameAs:r.names.length>1?stripLuma(i===0?r.names[1]:r.names[0]):'',form:r.names.length>1?(i===0?'original':'evolved'):'',mentor:r.f.mentor||'',role:r.f.role||'',team:r.f.team||'',guild:r.f.guild||'',zodiac:r.f.zodiac||'',base:r.f.base||'',status:statusOf(r.f.status),info:Object.assign({},r.info),discRaw:r.f.disciples||'',disciples:dis});
+        rank:r.f.rank||'',sameAs:r.names.length>1?stripLuma(i===0?r.names[1]:r.names[0]):'',form:r.names.length>1?(i===0?'original':'evolved'):'',mentor:r.f.mentor||'',role:r.f.role||'',team:r.f.team||'',guild:r.f.guild||'',zodiac:r.f.zodiac||'',base:r.f.base||'',status:statusOf(r.f.status),info:Object.assign({},r.info),discRaw:r.f.disciples||'',noDisc,disciples:dis});
     });
   }
   return out;
@@ -251,7 +253,7 @@ function entriesFromConfig(list){
     }
     out.push({name:String(g.name),names:[String(g.name)],path,kind,element:pe||oe,origEl:oe,reason,
       rank:g.rank||'',sameAs:g.sameAs||'',form:g.form||'',mentor:g.mentor||'',role:g.role||'',team:g.team||'',guild:g.guild||'',zodiac:g.zodiac||'',
-      base:g.base||'',status:statusOf(g.status),info:Object.fromEntries(Object.entries(g.info||{}).filter(([k])=>!HIDDEN.has(k.toLowerCase()))),discRaw:'',disciples:Array.isArray(g.disciples)?g.disciples.map(String):[],source:'branches.json'});
+      base:g.base||'',status:statusOf(g.status),info:Object.fromEntries(Object.entries(g.info||{}).filter(([k])=>!HIDDEN.has(k.toLowerCase()))),discRaw:'',noDisc:!!g.noDisc,disciples:Array.isArray(g.disciples)?g.disciples.map(String):[],source:'branches.json'});
   }
   return out;
 }
@@ -269,7 +271,7 @@ function exportConfig(entries,roots,cfg){
   const g=entries.filter(e=>e.name!=='(unnamed)').map(e=>{
     const o={name:e.name,path:e.path.join('-')};
     if(e.kind==='none'){o.element=e.element||'';o.reason=e.reason;}
-    ['rank','mentor','role','team','guild','zodiac','base','status','sameAs','form'].forEach(k=>{if(e[k])o[k]=e[k];});
+    ['rank','mentor','role','team','guild','zodiac','base','status','sameAs','form','noDisc'].forEach(k=>{if(e[k])o[k]=e[k];});
     if(e.info&&Object.keys(e.info).length)o.info=e.info;
     if(e.disciples&&e.disciples.length)o.disciples=e.disciples;
     return o;
@@ -421,7 +423,7 @@ function renderTree(root,el){
     const dis=g.disciples&&g.disciples.length?g.disciples.join(', '):(n&&n.kids.length?n.kids.map(k=>k.label).join(', '):'');
     return{name:g.name+(g.sameAs?(g.form==='evolved'?' (evolved form of '+g.sameAs+')':' (evolves into '+g.sameAs+')'):''),
       branch:zroot?el+' (Zodiac root)':(g.path&&g.path.length?g.path.join(' \u203a '):unk('')),
-      civ:unk(g.info&&g.info['Civilian Name']),role:unk(g.role),base:unk(g.base||g.guild),mentor:unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:unk(dis),status:g.status||''};
+      civ:unk(g.info&&g.info['Civilian Name']),role:unk(g.role),base:unk(g.base||g.guild),mentor:zroot?'None':unk(g.mentor&&!/^-+$/.test(g.mentor.trim())?g.mentor:((n&&n.par&&n.par.d>0)?(n.par.g.length?n.par.g[0].name:n.par.label):(n&&n.d===1?zodOf(n):'')||'')),disciples:(dis||!g.noDisc)?unk(dis):'None',status:g.status||''};
   }
   const zodOf=n=>{const top=n.d>0?root.kids[n.sh]:null;return top&&root.zmap?root.zmap.get(top.label.toLowerCase()):null;};
   function descGuardians(n){const out=[];(function w(m){m.g.forEach(g=>out.push(g.name));m.kids.forEach(w);})(n);return out;}
@@ -455,7 +457,7 @@ function renderTree(root,el){
     zs.forEach(z=>{
       const key=el+':'+(id++);
       const zst=z.g?(z.g[0].status||''):'';
-      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',civ:BLANK,role:BLANK,base:BLANK,mentor:BLANK,disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
+      details[key]=z.none?{title:z.name,sub:'Zodiac root of '+el,none:true,zodiac:true,by:[],cards:[{name:z.name,branch:el+' (Zodiac root)',civ:BLANK,role:BLANK,base:BLANK,mentor:'None',disciples:BLANK,status:''}]}:{title:z.name,sub:'Zodiac root of '+el,g:z.g,cards:z.g.map(q=>cardFor(q,null,true))};
       nodes+=box(PAD,Y(z.row),z.name,'root '+elc+' z-'+slug(z.name)+(zst?' st-'+zst:'')+(z.none?' gray':''),key,z.name+' (Zodiac root)'+(z.none?' (no profile yet)':'')+(zst?' ('+zst+')':''),zst);
     });
   }
@@ -535,7 +537,7 @@ function dl(rows){return '<dl class="std">'+rows.map(r=>'<dt>'+r[0]+'</dt><dd'+(
 function stdCard(c,hasG,k,i){
   const badge=c.status?'<span class="badge st-'+c.status+'">'+(c.status==='deceased'?'\u2020 Deceased':'R Retired')+'</span>':'';
   return '<div class="stdcard"><div class="sh"><h3>'+esc(c.name)+'</h3>'+badge+'</div>'+
-    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Civilian name',c.civ||BLANK],['Branch',c.branch],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
+    dl([['Guardian Name',c.name.replace(/\s*\(.*\)$/,'')],['Branch',c.branch],['Role',c.role||BLANK],['Based at',c.base],['Mentor',c.mentor],['Disciples',c.disciples]])+
     (c.name.includes('(')?'<p class="same">'+esc(c.name.replace(/^.*\((.*)\)$/,'$1'))+'</p>':'')+
     (hasG?'<button type="button" class="btn full" data-k="'+esc(k)+'" data-i="'+i+'">View full info</button>':'<p class="hint">No profile yet.</p>')+'</div>';
 }
@@ -574,7 +576,7 @@ function legendHtml(zlist,unmapped,extra){
 }
 function renderPanel(){
   const p=$('panel');
-  if(!S.roots){p.innerHTML='<div class="card empty">Upload or paste your Guardian doc above to sort it.</div>';return;}
+  if(!S.roots){p.innerHTML='<div class="card empty">branches.json could not be loaded.</div>';return;}
   const t=S.tab;
   if(t==='All'){
     const det={};let blocks='',alias=false,zod=false;
@@ -594,7 +596,7 @@ function renderPanel(){
     if(!root.kids.length&&!root.z.length&&!root.zg.length){p.innerHTML='<div class="card empty">No '+t+' Guardians with a branch were found.</div>';return;}
     const r=renderTree(root,t);S.details=r.details;
     const ec='el-'+t.toLowerCase();
-    p.innerHTML=legendHtml(r.zlist,r.unmapped,(r.hasAlias?'<span><i class="sw alias-sw"></i>Dashed line = same person</span>':''))+'<div class="card diagram">'+r.svg+'</div><div class="detail" id="detail">'+detailHtml(null)+'</div>';
+    p.innerHTML=legendHtml(r.zlist,r.unmapped,(r.hasAlias?'<span><i class="sw alias-sw"></i>Dashed line = same person</span>':''))+'<div class="detail sticky" id="detail">'+detailHtml(null)+'</div><div class="card diagram">'+r.svg+'</div>';
   }else if(t==='No branch yet'){
     const groups=[...ELEMENTS,'No element set'].map(g=>({g,items:S.noBranch.filter(e=>(e.element||'No element set')===g)})).filter(x=>x.items.length);
     if(!groups.length){p.innerHTML='<div class="card empty">Every Guardian has a branch.</div>';return;}
